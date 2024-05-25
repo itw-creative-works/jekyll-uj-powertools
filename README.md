@@ -18,7 +18,7 @@
   <img src="https://img.shields.io/github/last-commit/itw-creative-works/jekyll-uj-powertools.svg">
   <br>
   <br>
-  <a href="https://itwcreativeworks.com">Site</a> | <a href="https://www.npmjs.com/package/jekyll-uj-powertools">NPM Module</a> | <a href="https://github.com/itw-creative-works/jekyll-uj-powertools">GitHub Repo</a>
+  <a href="https://itwcreativeworks.com">Site</a> | <a href="https://rubygems.org/gems/jekyll-uj-powertools">Gem Page</a> | <a href="https://github.com/itw-creative-works/jekyll-uj-powertools">GitHub Repo</a>
   <br>
   <br>
   Meet <strong>jekyll-uj-powertools</strong>, your new best friend for developing with <a href="https://github.com/itw-creative-works/ultimate-jekyll">Ultimate jekyll</a>
