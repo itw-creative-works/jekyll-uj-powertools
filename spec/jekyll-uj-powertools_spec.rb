@@ -9,19 +9,20 @@ RSpec.describe Jekyll::UJPowertools do
   let(:dummy) { DummyClass.new }
 
   describe '.strip_ads' do
-    # it 'removes ads from the string' do
-    #   expect(dummy.strip_ads('{% include /master/modules/adunits/adsense-in-article.html index="0" %} This is content')).to eq(' This is content')
-    # end
-
-    # it 'returns the original string if no ads are present' do
-    #   expect(dummy.strip_ads('No ads here')).to eq('No ads here')
-    # end
-    it 'removes ads from the string' do
-      expect(dummy.remove_ads('This is <!-- ADUNIT_TRIGGER_START -->and ad<!-- ADUNIT_TRIGGER_END -->')).to eq('This is ')
+    it 'removes ads from the string with custom HTML elements' do
+      expect(dummy.strip_ads('This is <ad-unit>and ad</ad-unit>')).to eq('This is ')
     end
 
     it 'returns the original string if no ads are present' do
-      expect(dummy.remove_ads('No ads here')).to eq('No ads here')
+      expect(dummy.strip_ads('No ads here')).to eq('No ads here')
+    end
+
+    it 'removes multiple ads from the string' do
+      expect(dummy.strip_ads('First part<ad-unit>ad content</ad-unit>Second part<ad-unit>more ad content</ad-unit>Third part')).to eq('First partSecond partThird part')
+    end
+
+    it 'removes surrounding whitespace' do
+      expect(dummy.strip_ads("Start\n<ad-unit>\n  ad content\n</ad-unit>\nEnd")).to eq("Start\nEnd")
     end
   end
 
