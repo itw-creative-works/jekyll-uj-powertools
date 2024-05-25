@@ -26,7 +26,7 @@
 
 ## Features
 * Powerful utility for Jekyll sites
-* `remove_ads` filter to remove ads from a string
+* `strip_ads` filter to remove ads from a string
 * `json_escape` filter to escape JSON characters
 
 # Jekyll::uj-powertools
@@ -46,13 +46,13 @@ gem install jekyll-uj-powertools
 ```
 
 ## Usage
-Now you can use the `remove_ads` and `json_escape` filters in your Jekyll site:
+Now you can use the `strip_ads` and `json_escape` filters in your Jekyll site:
 
-### `remove_ads` Filter
+### `strip_ads` Filter
 Remove ads from a string, such as a blog post or article.
 
 ```liquid
-{{ post.content | remove_ads }}
+{{ post.content | strip_ads }}
 ```
 
 ### `json_escape` Filter

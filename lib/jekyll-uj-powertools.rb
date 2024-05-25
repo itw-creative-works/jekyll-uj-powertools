@@ -2,8 +2,8 @@ require "jekyll"
 
 module Jekyll
   module UJPowertools
-    def remove_ads(input)
-      input.gsub(/<[^>]*class="uj-vert-unit"[^>]*>.*?<\/[^>]*>/m, '')
+    def strip_ads(input)
+      input.gsub(/\{% include \/master\/modules\/adunits[^%]*%\}/, '')
     end
 
     def json_escape(value)

@@ -8,15 +8,15 @@ RSpec.describe Jekyll::UJPowertools do
 
   let(:dummy) { DummyClass.new }
 
-  # describe '.remove_ads' do
-  #   it 'removes ads from the string' do
-  #     expect(dummy.remove_ads('This is an ad! Buy now!')).to eq('This is an !')
-  #   end
+  describe '.strip_ads' do
+    it 'removes ads from the string' do
+      expect(dummy.strip_ads('{% include /master/modules/adunits/adsense-in-article.html index="0" %} This is content')).to eq(' This is content')
+    end
 
-  #   it 'returns the original string if no ads are present' do
-  #     expect(dummy.remove_ads('No ads here')).to eq('No ads here')
-  #   end
-  # end
+    it 'returns the original string if no ads are present' do
+      expect(dummy.strip_ads('No ads here')).to eq('No ads here')
+    end
+  end
 
   describe '.json_escape' do
     it 'escapes double quotes in JSON string' do
