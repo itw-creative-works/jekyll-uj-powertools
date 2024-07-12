@@ -42,6 +42,11 @@ module Jekyll
     def uj_random(input)
       rand(input)
     end
+
+    # Title case
+    def uj_title_case(input)
+      input.split(' ').map(&:capitalize).join(' ')
+    end
   end
 end
 

@@ -24,17 +24,17 @@
   Meet <strong>jekyll-uj-powertools</strong>, your new best friend for developing with <a href="https://github.com/itw-creative-works/ultimate-jekyll">Ultimate jekyll</a>
 </p>
 
-## Features
+## 🦄 Features
 * Powerful utility for Jekyll sites
 * `uj_strip_ads` filter to remove ads from a string
 * `uj_json_escape` filter to escape JSON characters
 
-# Jekyll::uj-powertools
+# 🌐 Jekyll::uj-powertools
 Meet `jekyll-uj-powertools`, the powerful set of utilities for Jekyll users.
 
 It includes functions to remove ads from strings and escape JSON characters, making your Jekyll site cleaner and more efficient.
 
-## Installation
+## 📦 Installation
 Install the gem and add to the application's Gemfile by executing:
 ```shell
 bundle add jekyll-uj-powertools
@@ -45,7 +45,7 @@ If bundler is not being used to manage dependencies, install the gem by executin
 gem install jekyll-uj-powertools
 ```
 
-## Usage
+## ⚡️ Usage
 Now you can use the `uj_strip_ads` and `uj_json_escape` filters in your Jekyll site:
 
 ### `uj_strip_ads` Filter
@@ -64,24 +64,38 @@ Escape JSON characters in a string making it safe to use in a JSON object.
 
 These examples show how you can use the features of `jekyll-uj-powertools` in your Jekyll site.
 
-## Development
+## 🔧 Development
 After checking out the repo, run `bin/setup` to install dependencies. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
 
 To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and the created tag, and push the `.gem` file to [rubygems.org](https://rubygems.org).
 
-### Building and pushing
+## ⚠️ Testing
 Run the tests
 ```shell
 bundle install
 bundle exec rspec
 ```
 
-Publish the Gem
+## 💎 Build + Publish the Gem
 ```shell
+# Build the gem
 gem build jekyll-uj-powertools.gemspec
 
-gem push jekyll-uj-powertools-1.0.0.gem
+# Publish the gem where X.X.X is the version number
+gem push jekyll-uj-powertools-X.X.X.gem
 ```
 
-## Contributing
+## 🗨️ Contributing
 Bug reports and pull requests are welcome on GitHub at https://github.com/itw-creative-works/jekyll-uj-powertools.
+
+## 📚 Projects Using this Library
+* [ITW Creative Works](https://itwcreativeworks.com)
+* [Somiibo](https://somiibo.com)
+* [Slapform](https://slapform.com)
+* [StudyMonkey](https://studymonkey.ai)
+* [DashQR](https://dashqr.com)
+* [Replyify](https://replyify.app)
+* [SoundGrail](https://soundgrail.com)
+* [Trusteroo](https://trusteroo.com)
+
+Ask us to have your project listed! :)
