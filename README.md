@@ -62,6 +62,13 @@ Escape JSON characters in a string making it safe to use in a JSON object.
 {{ post.content | uj_json_escape }}
 ```
 
+### `uj_title_case` Filter
+Convert a string to title case.
+
+```liquid
+{{ "hello world" | uj_title_case }}
+```
+
 These examples show how you can use the features of `jekyll-uj-powertools` in your Jekyll site.
 
 ## 🔧 Development
