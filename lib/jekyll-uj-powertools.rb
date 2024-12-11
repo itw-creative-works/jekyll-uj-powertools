@@ -2,6 +2,9 @@ require "jekyll"
 
 module Jekyll
   module UJPowertools
+    # Initialize a timestamp that will remain consistent across calls
+    @cache_timestamp = Time.now.to_i.to_s
+
     # Strip ads from the input
     def uj_strip_ads(input)
       input
@@ -45,12 +48,17 @@ module Jekyll
 
     # Cache buster
     def uj_cache(input)
-      Time.now.to_i.to_s
+      Jekyll::UJPowertools.cache_timestamp
     end
 
     # Title case
     def uj_title_case(input)
       input.split(' ').map(&:capitalize).join(' ')
+    end
+
+    # Accessor for the consistent timestamp
+    def self.cache_timestamp
+      @cache_timestamp
     end
   end
 
