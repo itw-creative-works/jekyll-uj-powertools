@@ -51,6 +51,11 @@ module Jekyll
       Jekyll::UJPowertools.cache_timestamp
     end
 
+    # Return the current year
+    def uj_year(input)
+      Time.now.year
+    end
+
     # Title case
     def uj_title_case(input)
       input.split(' ').map(&:capitalize).join(' ')
