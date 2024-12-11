@@ -62,11 +62,26 @@ module Jekyll
     end
   end
 
+  # Set a global cache buster timestamp
+  # class CacheBreakerGenerator < Jekyll::Generator
+  #   safe true
+  #   priority :highest
+
+  #   def generate(site)
+  #     # Define a global variable accessible in templates
+  #     site.config['cache_breaker2'] = Time.now.to_i.to_s
+  #   end
+  # end
+
+  # Inject data into pages and documents
   class InjectData < Generator
     safe true
     priority :low
 
     def generate(site)
+      # Define a global variable accessible in templates
+      # site.config['cache_breaker'] = Time.now.to_i.to_s
+
       # Process pages
       site.pages.each do |page|
         inject_data(page, site)
