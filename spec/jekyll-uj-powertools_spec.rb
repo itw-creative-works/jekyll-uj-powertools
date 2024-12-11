@@ -58,4 +58,18 @@ RSpec.describe Jekyll::UJPowertools do
       expect(dummy.uj_random(10)).to eq(8)
     end
   end
+
+  # Test Cache Buster method
+  describe '.uj_cache' do
+    it 'returns the current timestamp as a string' do
+      expect(dummy.uj_cache('unused')).to eq(Time.now.to_i.to_s)
+    end
+  end
+
+  # Test Title Case method
+  describe '.uj_title_case' do
+    it 'capitalizes the first letter of each word' do
+      expect(dummy.uj_title_case('this is a title')).to eq('This Is A Title')
+    end
+  end
 end

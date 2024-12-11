@@ -43,6 +43,11 @@ module Jekyll
       rand(input)
     end
 
+    # Cache buster
+    def uj_cache(input)
+      Time.now.to_i.to_s
+    end
+
     # Title case
     def uj_title_case(input)
       input.split(' ').map(&:capitalize).join(' ')
