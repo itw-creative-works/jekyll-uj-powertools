@@ -46,11 +46,6 @@ module Jekyll
       rand(input)
     end
 
-    # Cache buster
-    def uj_cache(input)
-      Jekyll::UJPowertools.cache_timestamp
-    end
-
     # Return the current year
     def uj_year(input)
       Time.now.year
@@ -120,4 +115,12 @@ module Jekyll
   end
 end
 
+# Register the filter
 Liquid::Template.register_filter(Jekyll::UJPowertools)
+
+# Register hook
+Jekyll::Hooks.register :site, :pre_render do |site|
+  site.config['uj'] ||= {}
+  site.config['uj']['cacheBreaker'] = Jekyll::UJPowertools.cache_timestamp
+  site.config['uj']['cache_breaker'] = Jekyll::UJPowertools.cache_timestamp
+end

@@ -1,5 +1,5 @@
 module Jekyll
   module UJPowertools
-    VERSION = "1.2.4"
+    VERSION = "1.2.7"
   end
 end
