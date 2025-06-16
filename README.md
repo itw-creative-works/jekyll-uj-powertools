@@ -69,6 +69,13 @@ Convert a string to title case.
 {{ "hello world" | uj_title_case }}
 ```
 
+### `uj.cache_breaker` Variable
+Use the `uj.cache_breaker` variable to append a cache-busting query parameter to your assets.
+
+```liquid
+<link rel="stylesheet" href="{{ "/assets/css/style.css" | prepend: site.baseurl }}?v={{ uj.cache_breaker }}">
+```
+
 These examples show how you can use the features of `jekyll-uj-powertools` in your Jekyll site.
 
 ## 🔧 Development
@@ -85,11 +92,17 @@ bundle exec rspec
 
 ## 💎 Build + Publish the Gem
 ```shell
-# Build the gem
-gem build jekyll-uj-powertools.gemspec
+# Ensure dist folder exists
+mkdir -p dist
 
-# Publish the gem where X.X.X is the version number
-gem push jekyll-uj-powertools-X.X.X.gem
+# Build the gem and push it to RubyGems
+gem build jekyll-uj-powertools.gemspec -o dist/jekyll-uj-powertools-latest.gem
+
+# Publish the latest gem
+gem push dist/jekyll-uj-powertools-latest.gem
+
+# Clear the files in the dist folder
+rm -rf dist/*
 ```
 
 ## 🗨️ Contributing

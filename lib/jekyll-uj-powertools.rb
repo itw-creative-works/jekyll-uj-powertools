@@ -62,57 +62,9 @@ module Jekyll
     end
   end
 
-  # Set a global cache buster timestamp
-  # class CacheBreakerGenerator < Jekyll::Generator
-  #   safe true
-  #   priority :highest
-
-  #   def generate(site)
-  #     # Define a global variable accessible in templates
-  #     site.config['cache_breaker2'] = Time.now.to_i.to_s
-  #   end
-  # end
-
-  # Inject data into pages and documents
-  class InjectData < Generator
-    safe true
-    priority :low
-
-    def generate(site)
-      # Define a global variable accessible in templates
-      # site.config['cache_breaker'] = Time.now.to_i.to_s
-
-      # Process pages
-      site.pages.each do |page|
-        inject_data(page, site)
-      end
-
-      # Process documents in all collections
-      site.collections.each do |_, collection|
-        collection.docs.each do |document|
-          inject_data(document, site)
-        end
-      end
-    end
-
-    private
-
-    def inject_data(item, site)
-      # Inject a random number into the item's data
-      item.data['random_id'] = rand(100) # Random number between 0 and 99
-
-      return unless item.data['layout'] # Skip items without layouts
-
-      # Find the layout file by its name
-      layout_name = item.data['layout']
-      layout = site.layouts[layout_name]
-
-      if layout && layout.data
-        # Merge layout front matter into item's "layout_data"
-        item.data['layout_data'] = layout.data
-      end
-    end
-  end
+  # Load Generators
+  require_relative "generators/inject-data"
+  require_relative "generators/translate-pages"
 end
 
 # Register the filter
@@ -121,6 +73,5 @@ Liquid::Template.register_filter(Jekyll::UJPowertools)
 # Register hook
 Jekyll::Hooks.register :site, :pre_render do |site|
   site.config['uj'] ||= {}
-  site.config['uj']['cacheBreaker'] = Jekyll::UJPowertools.cache_timestamp
   site.config['uj']['cache_breaker'] = Jekyll::UJPowertools.cache_timestamp
 end
