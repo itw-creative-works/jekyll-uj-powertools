@@ -16,11 +16,12 @@ module Jekyll
     RECHECK_DAYS = 30
 
     def generate(site)
+      # Get target languages from site config
       target_langs = site.config.dig('translation', 'languages') || []
 
       # Log
-      puts "🔁 Starting translation process for supported languages: #{target_langs.join(', ')}"
-      puts "📂 Cache directory: #{CACHE_DIR}"
+      puts "🔁 Starting translation process for supported languages (#{target_langs.length}): #{target_langs.join(', ')}"
+      # puts "📂 Cache directory: #{CACHE_DIR}"
       # puts "🔍 All environment variables:"
       # ENV.each { |k, v| puts "   #{k}=#{v}" }
       puts "🔍 UJ_ environment variables:"
@@ -29,6 +30,12 @@ module Jekyll
       # Skip if site config translation is disabled
       unless site.config.dig('translation', 'enabled')
         puts "🚫 Translation is disabled in _config.yml (translation.enabled: false)"
+        return
+      end
+
+      # Quit if UJ_BUILD_MODE is false
+      if ENV['UJ_BUILD_MODE'] == 'false' && ENV['UJ_TRANSLATION_FORCE'] != 'true'
+        puts "🚫 UJ_BUILD_MODE is set to 'false' (set UJ_TRANSLATION_FORCE=true). Exiting translation process."
         return
       end
 
@@ -72,8 +79,9 @@ module Jekyll
 
           # @TODO: Remove this
           # Unless its pages/legal/terms.md, QUIT
-          if page_path != 'pages/legal/terms.md'
-            skipped_files << "#{page_path} (only 'pages/legal/terms.md' is processed)"
+          uj_translation_only = ENV['UJ_TRANSLATION_ONLY']
+          if uj_translation_only && page_path != uj_translation_only
+            skipped_files << "#{page_path} (UJ_TRANSLATION_ONLY is set)"
             next
           end
 
@@ -132,6 +140,10 @@ module Jekyll
         puts "📭 No cache found, generating translation..."
       end
 
+      # Log before/after content
+      puts "\n--- BEFORE CONTENT (#{lang}) ---\n#{content[0..500]}..."
+
+      # Translate the content using OpenAI API
       begin
         result = translate_with_api(content, lang)
       rescue => e
@@ -139,6 +151,10 @@ module Jekyll
         return nil
       end
 
+      # Log the first 500 characters of the result
+      puts "\n--- AFTER TRANSLATION (#{lang}) ---\n#{result[0..500]}..."
+
+      # Save the translation and metadata
       FileUtils.mkdir_p(File.dirname(path))
       File.write(path, result)
       File.write(meta_path, {
@@ -147,10 +163,6 @@ module Jekyll
       }.to_json)
 
       puts "📝 Cached translation and metadata written to: #{path}"
-
-      # Log before/after content
-      puts "\n--- BEFORE CONTENT (#{lang}) ---\n#{content[0..500]}..."
-      puts "\n--- AFTER TRANSLATION (#{lang}) ---\n#{result[0..500]}..."
 
       result
     end
@@ -183,6 +195,8 @@ module Jekyll
       end
 
       json = JSON.parse(res.body)
+      # Log json
+      puts "🔍 API response: #{json.inspect}"
       result = json.dig('choices', 0, 'message', 'content')
 
       if result.nil? || result.strip.empty?

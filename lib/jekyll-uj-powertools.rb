@@ -1,5 +1,7 @@
+# Libraries
 require "jekyll"
 
+# Module
 module Jekyll
   module UJPowertools
     # Initialize a timestamp that will remain consistent across calls
@@ -63,15 +65,12 @@ module Jekyll
   end
 
   # Load Generators
-  require_relative "generators/inject-data"
-  require_relative "generators/translate-pages"
+  require_relative "generators/inject-properties"
+
+  # Load Hooks
+  require_relative "hooks/inject-properties"
+  # require_relative "hooks/translate-pages"
 end
 
 # Register the filter
 Liquid::Template.register_filter(Jekyll::UJPowertools)
-
-# Register hook
-Jekyll::Hooks.register :site, :pre_render do |site|
-  site.config['uj'] ||= {}
-  site.config['uj']['cache_breaker'] = Jekyll::UJPowertools.cache_timestamp
-end

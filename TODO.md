@@ -8,3 +8,11 @@
   - SOMEWHERE in build process, fetch TRANSLATED from branch, then store the new translated files
 3. Other things
   - test automatic link system that rewrites links for languages
+
+TESTING
+```
+UJ_TRANSLATION_ONLY=pages/legal/terms.md \
+UJ_TRANSLATION_FORCE=true \
+OPENAI_API_KEY=*** \
+npm start -- --ujPluginDevMode=true
+```
