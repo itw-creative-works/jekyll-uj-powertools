@@ -1,6 +1,7 @@
 # Libraries
 # ...
 
+# Module
 module Jekyll
   class InjectData < Generator
     safe true
