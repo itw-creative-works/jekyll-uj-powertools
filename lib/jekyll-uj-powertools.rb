@@ -62,6 +62,11 @@ module Jekyll
     def self.cache_timestamp
       @cache_timestamp
     end
+
+    # Check if a string ends with a specific suffix
+    # def uj_ends_with(input, suffix)
+    #   input.end_with?(suffix)
+    # end
   end
 
   # Load Generators

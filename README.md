@@ -46,8 +46,9 @@ gem install jekyll-uj-powertools
 ```
 
 ## ⚡️ Usage
-Now you can use the `uj_strip_ads` and `uj_json_escape` filters in your Jekyll site:
+Now you can use all the custom filters and variables provided by `jekyll-uj-powertools` in your Jekyll site.
 
+## Filters
 ### `uj_strip_ads` Filter
 Remove ads from a string, such as a blog post or article.
 
@@ -69,11 +70,26 @@ Convert a string to title case.
 {{ "hello world" | uj_title_case }}
 ```
 
-### `uj.cache_breaker` Variable
-Use the `uj.cache_breaker` variable to append a cache-busting query parameter to your assets.
+## Global Variables
+### `site.uj.cache_breaker` Variable
+Use the `site.uj.cache_breaker` variable to append a cache-busting query parameter to your assets.
 
 ```liquid
-<link rel="stylesheet" href="{{ "/assets/css/style.css" | prepend: site.baseurl }}?v={{ uj.cache_breaker }}">
+<link rel="stylesheet" href="{{ "/assets/css/style.css" | prepend: site.baseurl }}?v={{ site.uj.cache_breaker }}">
+```
+
+### Page Variables
+### `page.random_id` Variable
+Generate a random ID for each page, useful for sorting randomly or for unique identifiers.
+
+### `page.extension` Variable
+Get the file extension of the current page, useful for determining how to process or display the page.
+
+### `page.layout_data` Variable
+Access the layout data of the current page, which can be useful for debugging or displaying layout-specific information.
+
+```liquid
+{{ page.extension }}
 ```
 
 These examples show how you can use the features of `jekyll-uj-powertools` in your Jekyll site.

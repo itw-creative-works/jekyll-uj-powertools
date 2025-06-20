@@ -29,7 +29,13 @@ module Jekyll
       # Inject a random number into the item's data
       item.data['random_id'] = rand(100) # Random number between 0 and 99
 
-      return unless item.data['layout'] # Skip items without layouts
+      # Inject the file extension into the item's data
+      if item.respond_to?(:path)
+        item.data['extension'] = File.extname(item.path)
+      end
+
+      # Skip items without layouts
+      return unless item.data['layout']
 
       # Find the layout file by its name
       layout_name = item.data['layout']
