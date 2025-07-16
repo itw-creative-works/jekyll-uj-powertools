@@ -5,7 +5,13 @@ RSpec.describe Jekyll::InjectData do
     double('site', 
       pages: [page], 
       collections: { 'posts' => collection },
-      layouts: { 'default' => layout }
+      layouts: { 'default' => layout },
+      config: {
+        'title' => 'Site Title',
+        'description' => 'Site Description',
+        'value' => { 'check' => 'site_value' },
+        'nested' => { 'foo' => 'site_foo', 'bar' => 'site_bar' }
+      }
     )
   end
 
@@ -28,7 +34,12 @@ RSpec.describe Jekyll::InjectData do
   end
 
   let(:layout) do
-    double('layout', data: { 'title' => 'Default Layout', 'description' => 'A default layout' })
+    double('layout', data: { 
+      'title' => 'Default Layout', 
+      'description' => 'A default layout',
+      'value' => { 'check' => 'layout_value' },
+      'nested' => { 'foo' => 'layout_foo', 'baz' => 'layout_baz' }
+    })
   end
 
   let(:generator) { Jekyll::InjectData.new }
@@ -85,7 +96,9 @@ RSpec.describe Jekyll::InjectData do
       it 'injects layout_data from the specified layout' do
         expect(document.data['layout_data']).to eq({
           'title' => 'Default Layout',
-          'description' => 'A default layout'
+          'description' => 'A default layout',
+          'value' => { 'check' => 'layout_value' },
+          'nested' => { 'foo' => 'layout_foo', 'baz' => 'layout_baz' }
         })
       end
     end
@@ -95,7 +108,8 @@ RSpec.describe Jekyll::InjectData do
         double('site', 
           pages: [],
           collections: {},
-          layouts: {}
+          layouts: {},
+          config: {}
         )
       end
 
@@ -125,6 +139,76 @@ RSpec.describe Jekyll::InjectData do
 
       it 'does not inject extension when path is not available' do
         expect(item_without_path.data['extension']).to be_nil
+      end
+    end
+
+    context 'resolved data merging' do
+      let(:page_with_data) do
+        double('page',
+          data: {
+            'layout' => 'default',
+            'title' => 'Page Title',
+            'value' => { 'check' => 'page_value' },
+            'nested' => { 'foo' => 'page_foo' }
+          },
+          path: '/path/to/page.html'
+        )
+      end
+
+      before do
+        generator.send(:inject_data, page_with_data, site)
+      end
+
+      it 'creates resolved data with all three levels merged' do
+        expect(page_with_data.data['resolved']).to be_a(Hash)
+      end
+
+      it 'prioritizes page data over layout and site data' do
+        expect(page_with_data.data['resolved']['title']).to eq('Page Title')
+        expect(page_with_data.data['resolved']['value']['check']).to eq('page_value')
+      end
+
+      it 'falls back to layout data when page data is missing' do
+        expect(page_with_data.data['resolved']['description']).to eq('A default layout')
+      end
+
+      it 'deep merges nested hashes correctly' do
+        resolved_nested = page_with_data.data['resolved']['nested']
+        expect(resolved_nested['foo']).to eq('page_foo')  # Page value wins
+        expect(resolved_nested['bar']).to eq('site_bar')  # Site value (no override)
+        expect(resolved_nested['baz']).to eq('layout_baz')  # Layout value (no override)
+      end
+
+      it 'includes all site config in resolved data' do
+        # Site-only values should be present
+        expect(page_with_data.data['resolved']['title']).to eq('Page Title')  # Overridden
+        expect(page_with_data.data['resolved']['description']).to eq('A default layout')  # From layout
+      end
+    end
+
+    context 'resolved data without layout' do
+      let(:page_no_layout) do
+        double('page',
+          data: {
+            'title' => 'Page Without Layout',
+            'custom' => 'page_custom'
+          },
+          path: '/path/to/page.html'
+        )
+      end
+
+      before do
+        generator.send(:inject_data, page_no_layout, site)
+      end
+
+      it 'creates resolved data even without layout' do
+        expect(page_no_layout.data['resolved']).to be_a(Hash)
+      end
+
+      it 'merges site and page data without layout data' do
+        expect(page_no_layout.data['resolved']['title']).to eq('Page Without Layout')
+        expect(page_no_layout.data['resolved']['custom']).to eq('page_custom')
+        expect(page_no_layout.data['resolved']['description']).to eq('Site Description')  # From site
       end
     end
   end

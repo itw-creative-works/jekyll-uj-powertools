@@ -26,6 +26,17 @@ module Jekyll
 
     private
 
+    def deep_merge(hash1, hash2)
+      merger = proc { |_, old_val, new_val|
+        if old_val.is_a?(Hash) && new_val.is_a?(Hash)
+          old_val.merge(new_val, &merger)
+        else
+          new_val
+        end
+      }
+      hash1.merge(hash2, &merger)
+    end
+
     def inject_data(item, site)
       # Inject a random number into the item's data
       item.data['random_id'] = rand(100) # Random number between 0 and 99
@@ -35,17 +46,32 @@ module Jekyll
         item.data['extension'] = File.extname(item.path)
       end
 
-      # Skip items without layouts
-      return unless item.data['layout']
+      # Set resolved data for site, layout, and page
+      # Create a deep merge of site -> layout -> page data
+      # Priority: page (highest) -> layout -> site (lowest)
+      resolved = {}
 
-      # Find the layout file by its name
-      layout_name = item.data['layout']
-      layout = site.layouts[layout_name]
-
-      if layout && layout.data
-        # Merge layout front matter into item's "layout_data"
-        item.data['layout_data'] = layout.data
+      # Start with site data
+      if site.config
+        resolved = deep_merge(resolved, site.config)
       end
+
+      # Merge layout data if available
+      if item.data['layout']
+        layout_name = item.data['layout']
+        layout = site.layouts[layout_name]
+        if layout && layout.data
+          resolved = deep_merge(resolved, layout.data)
+          # Also add layout_data for backward compatibility
+          item.data['layout_data'] = layout.data
+        end
+      end
+
+      # Finally merge page data (highest priority)
+      resolved = deep_merge(resolved, item.data)
+
+      # Add the resolved data to the item
+      item.data['resolved'] = resolved
     end
   end
 end

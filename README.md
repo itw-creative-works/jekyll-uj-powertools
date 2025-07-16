@@ -82,14 +82,48 @@ Use the `site.uj.cache_breaker` variable to append a cache-busting query paramet
 ### `page.random_id` Variable
 Generate a random ID for each page, useful for sorting randomly or for unique identifiers.
 
+```liquid
+<!-- Sort pages in a random order -->
+{% assign sorted_pages = site.pages | sort: "random_id" %}
+{% for page in sorted_pages %}
+  <h2>{{ page.title }}</h2>
+  <p>Random ID: {{ page.random_id }}</p>
+  <p>{{ page.content }}</p>
+{% endfor %}
+```
+
 ### `page.extension` Variable
 Get the file extension of the current page, useful for determining how to process or display the page.
 
+```liquid
+<!-- Check the extension of a page -->
+{% if page.extension == "html" %}
+  <p>This is an HTML page.</p>
+{% elsif page.extension == "md" %}
+  <p>This is a Markdown page.</p>
+{% endif %}
+```
+
 ### `page.layout_data` Variable
-Access the layout data of the current page, which can be useful for debugging or displaying layout-specific information.
+Access the layout data of the page object, which can be useful for accessing layout-specific variables when looping through pages.
 
 ```liquid
-{{ page.extension }}
+<!-- Loop through pages and access the layout data of each page -->
+{% for page in site.pages %}
+  <h2>{{ page.title }}</h2>
+  <p>{{ page.layout_data.description }}</p>
+{% endfor %}
+```
+
+### `page.resolved` Variable
+Resolves the site, layout, and page data into a single object, which can be useful for accessing all the information about the current page in one place.
+
+```liquid
+<!-- New Way -->
+{{ page.resolved.my.variable }}
+
+<!-- Old Way -->
+{{ page.my.variable | default: layout.my.variable | default: site.my.variable }}
 ```
 
 These examples show how you can use the features of `jekyll-uj-powertools` in your Jekyll site.
