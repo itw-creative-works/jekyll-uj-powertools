@@ -75,16 +75,16 @@ module Jekyll
     def get_layout_chain(layout_name, site)
       chain = []
       current_layout_name = layout_name
-      
+
       # Traverse up the layout hierarchy
       while current_layout_name
         layout = site.layouts[current_layout_name]
         break unless layout
-        
+
         chain.unshift(layout)  # Add to beginning to maintain parent->child order
         current_layout_name = layout.data['layout']
       end
-      
+
       chain
     end
 
@@ -95,13 +95,13 @@ module Jekyll
         'path', 'relative_path', 'collection', 'type', 'id', 'url',
         'next', 'previous', 'draft', 'ext', 'excerpt', 'output'
       ]
-      
+
       filtered = {}
       data.each do |key, value|
         next if jekyll_internals.include?(key)
         filtered[key] = value
       end
-      
+
       filtered
     end
 
