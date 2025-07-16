@@ -1,12 +1,11 @@
 # coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'jekyll-uj-powertools/version'
 
 Gem::Specification.new do |spec|
   # Gem info
   spec.name = "jekyll-uj-powertools"
-  spec.version = Jekyll::UJPowertools::VERSION
+  spec.version = "1.4.0"
 
   # Author info
   spec.authors = ["ITW Creative Works"]
