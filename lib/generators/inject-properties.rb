@@ -37,6 +37,41 @@ module Jekyll
       hash1.merge(hash2, &merger)
     end
 
+    def filter_site_config(config)
+      # Get exclusion list from config or use defaults
+      exclusions = config['powertools_resolved_exclude'] || default_exclusions
+
+      # Always exclude the config key itself
+      exclusions_with_config_key = exclusions + ['powertools_resolved_exclude']
+
+      # Create filtered copy
+      filtered = {}
+      config.each do |key, value|
+        next if exclusions_with_config_key.include?(key)
+        filtered[key] = value
+      end
+
+      filtered
+    end
+
+    def default_exclusions
+      # Exclude Jekyll internal keys and potentially large data
+      [
+        # Unnecessary Jekyll keys
+        'plugins', 'gems', 'whitelist', 'plugins_dir',
+        'layouts_dir', 'data_dir', 'includes_dir',
+        'collections', 'jekyll-archives', 'scholar',
+        'assets', 'webpack', 'sass', 'keep_files',
+        'include', 'exclude', 'markdown_ext',
+
+        # Custom exclusions
+        'escapes', 'icons',
+
+        # Use this to customize exclusions in the Jekyll site
+        'powertools_resolved_exclude',
+      ]
+    end
+
     def inject_data(item, site)
       # Inject a random number into the item's data
       item.data['random_id'] = rand(100) # Random number between 0 and 99
@@ -53,7 +88,9 @@ module Jekyll
 
       # Start with site data
       if site.config
-        resolved = deep_merge(resolved, site.config)
+        # Filter site config to exclude large/unnecessary keys
+        filtered_config = filter_site_config(site.config)
+        resolved = deep_merge(resolved, filtered_config)
       end
 
       # Merge layout data if available

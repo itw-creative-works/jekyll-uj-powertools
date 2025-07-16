@@ -10,7 +10,9 @@ RSpec.describe Jekyll::InjectData do
         'title' => 'Site Title',
         'description' => 'Site Description',
         'value' => { 'check' => 'site_value' },
-        'nested' => { 'foo' => 'site_foo', 'bar' => 'site_bar' }
+        'nested' => { 'foo' => 'site_foo', 'bar' => 'site_bar' },
+        'plugins' => ['jekyll-feed', 'jekyll-seo'],  # Should be excluded
+        'collections' => { 'posts' => {} }  # Should be excluded
       }
     )
   end
@@ -209,6 +211,66 @@ RSpec.describe Jekyll::InjectData do
         expect(page_no_layout.data['resolved']['title']).to eq('Page Without Layout')
         expect(page_no_layout.data['resolved']['custom']).to eq('page_custom')
         expect(page_no_layout.data['resolved']['description']).to eq('Site Description')  # From site
+      end
+    end
+
+    context 'site config filtering' do
+      let(:page_for_filtering) do
+        double('page',
+          data: { 'layout' => 'default' },
+          path: '/path/to/page.html'
+        )
+      end
+
+      before do
+        generator.send(:inject_data, page_for_filtering, site)
+      end
+
+      it 'excludes Jekyll internal keys from resolved data' do
+        expect(page_for_filtering.data['resolved']['plugins']).to be_nil
+        expect(page_for_filtering.data['resolved']['collections']).to be_nil
+      end
+
+      it 'includes non-excluded site config keys' do
+        # Title comes from layout which overrides site
+        expect(page_for_filtering.data['resolved']['title']).to eq('Default Layout')
+        # Value comes from layout which overrides site
+        expect(page_for_filtering.data['resolved']['value']['check']).to eq('layout_value')
+        # This comes from site config (not in layout)
+        expect(page_for_filtering.data['resolved']['nested']['bar']).to eq('site_bar')
+      end
+    end
+
+    context 'custom exclusions' do
+      let(:site_with_exclusions) do
+        double('site',
+          pages: [],
+          collections: {},
+          layouts: {},
+          config: {
+            'title' => 'Site Title',
+            'custom_data' => 'Should be excluded',
+            'keep_this' => 'Should be kept',
+            'powertools_resolved_exclude' => ['custom_data', 'plugins']
+          }
+        )
+      end
+
+      let(:page_with_exclusions) do
+        double('page',
+          data: {},
+          path: '/path/to/page.html'
+        )
+      end
+
+      before do
+        generator.send(:inject_data, page_with_exclusions, site_with_exclusions)
+      end
+
+      it 'uses custom exclusion list from config' do
+        expect(page_with_exclusions.data['resolved']['custom_data']).to be_nil
+        expect(page_with_exclusions.data['resolved']['keep_this']).to eq('Should be kept')
+        expect(page_with_exclusions.data['resolved']['powertools_resolved_exclude']).to be_nil
       end
     end
   end
