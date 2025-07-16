@@ -71,5 +71,4 @@ node_modules/
 *.gem
 
 # Custom
-dist
 pkg

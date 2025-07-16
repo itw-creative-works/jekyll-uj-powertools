@@ -110,17 +110,11 @@ bundle exec rspec
 
 ## 💎 Build + Publish the Gem
 ```shell
-# Ensure dist folder exists
-mkdir -p dist
+# Release
+bundle exec rake release
 
-# Build the gem and push it to RubyGems
-gem build jekyll-uj-powertools.gemspec -o dist/jekyll-uj-powertools-latest.gem
-
-# Publish the latest gem
-gem push dist/jekyll-uj-powertools-latest.gem
-
-# Clear the files in the dist folder
-rm -rf dist/*
+# Clear the files in the pkg folder
+rm -rf pkg/*
 ```
 
 ## 🗨️ Contributing
