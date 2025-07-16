@@ -1,7 +1,7 @@
 # Libraries
 require "jekyll"
 
-# Module
+# Filters
 module Jekyll
   module UJPowertools
     # Initialize a timestamp that will remain consistent across calls

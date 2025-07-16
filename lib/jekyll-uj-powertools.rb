@@ -12,5 +12,6 @@ module Jekyll
   require_relative "hooks/inject-properties"
 
   # Load Tags
-  # require_relative "tags/ifistruthy"
+  require_relative "tags/iftruthy"
+  require_relative "tags/iffalsy"
 end

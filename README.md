@@ -78,7 +78,7 @@ Use the `site.uj.cache_breaker` variable to append a cache-busting query paramet
 <link rel="stylesheet" href="{{ "/assets/css/style.css" | prepend: site.baseurl }}?v={{ site.uj.cache_breaker }}">
 ```
 
-### Page Variables
+## Page Variables
 ### `page.random_id` Variable
 Generate a random ID for each page, useful for sorting randomly or for unique identifiers.
 
@@ -126,15 +126,30 @@ Resolves the site, layout, and page data into a single object, which can be usef
 {{ page.my.variable | default: layout.my.variable | default: site.my.variable }}
 ```
 
+## Tags
+### `iftruthy` Tag
+A custom Liquid tag that checks if a variable is truthy (not nil, not false, not empty string, not 0) and renders the content inside the tag if it is truthy.
+```liquid
+{% iftruthy my_variable %}
+  <p>This content will only be rendered if my_variable is truthy.</p>
+{% endiftruthy %}
+```
+
+### `iffalsy` Tag
+A custom Liquid tag that checks if a variable is falsy (nil, false, empty string, or 0) and renders the content inside the tag if it is falsy.
+```liquid
+{% iffalsy my_variable %}
+  <p>This content will only be rendered if my_variable is falsy.</p>
+{% endifalsy %}
+```
+
+## Final notes
 These examples show how you can use the features of `jekyll-uj-powertools` in your Jekyll site.
 
 ## 🔧 Development
 After checking out the repo, run `bin/setup` to install dependencies. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
 
 To install this gem onto your local machine, run `bundle exec rake install`.
-
-
-
 
 ## ⚠️ Testing
 Run the tests
