@@ -186,6 +186,12 @@ RSpec.describe Jekyll::InjectData do
         expect(page_with_data.data['resolved']['title']).to eq('Page Title')  # Overridden
         expect(page_with_data.data['resolved']['description']).to eq('A default layout')  # From layout
       end
+
+      it 'filters out Jekyll internal properties' do
+        # Layout and other Jekyll internals should not be in resolved
+        expect(page_with_data.data['resolved']['layout']).to be_nil
+        expect(page_with_data.data['resolved']['path']).to be_nil
+      end
     end
 
     context 'resolved data without layout' do
@@ -271,6 +277,95 @@ RSpec.describe Jekyll::InjectData do
         expect(page_with_exclusions.data['resolved']['custom_data']).to be_nil
         expect(page_with_exclusions.data['resolved']['keep_this']).to eq('Should be kept')
         expect(page_with_exclusions.data['resolved']['powertools_resolved_exclude']).to be_nil
+      end
+    end
+
+    context 'layout chain traversal' do
+      let(:base_layout) do
+        double('base_layout', data: {
+          'title' => 'Base Layout',
+          'theme' => { 'nav' => { 'enabled' => true } }
+        })
+      end
+
+      let(:middle_layout) do
+        double('middle_layout', data: {
+          'layout' => 'base',
+          'title' => 'Middle Layout',
+          'theme' => { 'main' => { 'class' => 'container' } }
+        })
+      end
+
+      let(:site_with_chain) do
+        double('site',
+          pages: [],
+          collections: {},
+          layouts: { 
+            'base' => base_layout,
+            'middle' => middle_layout,
+            'default' => layout
+          },
+          config: { 'title' => 'Site Title' }
+        )
+      end
+
+      let(:page_with_chain) do
+        double('page',
+          data: {
+            'layout' => 'middle',
+            'title' => 'Page with Chain',
+            'theme' => { 'test' => 'test_value' }
+          },
+          path: '/path/to/page.html'
+        )
+      end
+
+      before do
+        # Update middle layout to have proper chain
+        allow(site_with_chain.layouts['middle']).to receive(:data).and_return({
+          'layout' => 'base',
+          'title' => 'Middle Layout',
+          'theme' => { 'main' => { 'class' => 'container' } }
+        })
+        
+        generator.send(:inject_data, page_with_chain, site_with_chain)
+      end
+
+      it 'traverses the entire layout chain' do
+        resolved_theme = page_with_chain.data['resolved']['theme']
+        
+        # From base layout
+        expect(resolved_theme['nav']['enabled']).to eq(true)
+        
+        # From middle layout
+        expect(resolved_theme['main']['class']).to eq('container')
+        
+        # From page
+        expect(resolved_theme['test']).to eq('test_value')
+      end
+
+      it 'respects precedence in layout chain' do
+        # Page title should override all layouts
+        expect(page_with_chain.data['resolved']['title']).to eq('Page with Chain')
+      end
+
+      it 'gives parent layouts priority over child layouts' do
+        # When a child and parent layout define the same key,
+        # the parent (base) layout should win
+        # In this test, both middle and base have 'title', 
+        # but base should win (if page didn't override)
+        page_no_override = double('page',
+          data: {
+            'layout' => 'middle',
+            'theme' => { 'test' => 'test_value' }
+          },
+          path: '/path/to/page.html'
+        )
+        
+        generator.send(:inject_data, page_no_override, site_with_chain)
+        
+        # Base layout's title should win over middle layout's title
+        expect(page_no_override.data['resolved']['title']).to eq('Base Layout')
       end
     end
   end

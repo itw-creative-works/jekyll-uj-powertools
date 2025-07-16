@@ -72,6 +72,39 @@ module Jekyll
       ]
     end
 
+    def get_layout_chain(layout_name, site)
+      chain = []
+      current_layout_name = layout_name
+      
+      # Traverse up the layout hierarchy
+      while current_layout_name
+        layout = site.layouts[current_layout_name]
+        break unless layout
+        
+        chain.unshift(layout)  # Add to beginning to maintain parent->child order
+        current_layout_name = layout.data['layout']
+      end
+      
+      chain
+    end
+
+    def filter_front_matter(data)
+      # Jekyll internal properties that shouldn't be in resolved data
+      jekyll_internals = [
+        'layout', 'permalink', 'published', 'date', 'categories', 'tags',
+        'path', 'relative_path', 'collection', 'type', 'id', 'url',
+        'next', 'previous', 'draft', 'ext', 'excerpt', 'output'
+      ]
+      
+      filtered = {}
+      data.each do |key, value|
+        next if jekyll_internals.include?(key)
+        filtered[key] = value
+      end
+      
+      filtered
+    end
+
     def inject_data(item, site)
       # Inject a random number into the item's data
       item.data['random_id'] = rand(100) # Random number between 0 and 99
@@ -82,8 +115,8 @@ module Jekyll
       end
 
       # Set resolved data for site, layout, and page
-      # Create a deep merge of site -> layout -> page data
-      # Priority: page (highest) -> layout -> site (lowest)
+      # Create a deep merge of site -> child layouts -> parent layouts -> page data
+      # Priority: page (highest) -> parent layouts -> child layouts -> site (lowest)
       resolved = {}
 
       # Start with site data
@@ -93,19 +126,31 @@ module Jekyll
         resolved = deep_merge(resolved, filtered_config)
       end
 
-      # Merge layout data if available
+      # Merge layout data if available (traverse the entire layout chain)
       if item.data['layout']
-        layout_name = item.data['layout']
-        layout = site.layouts[layout_name]
-        if layout && layout.data
-          resolved = deep_merge(resolved, layout.data)
-          # Also add layout_data for backward compatibility
-          item.data['layout_data'] = layout.data
+        layout_chain = get_layout_chain(item.data['layout'], site)
+
+        # Merge each layout in reverse order (child to parent)
+        # This gives parent layouts (base layouts) higher priority
+        layout_chain.reverse.each do |layout|
+          if layout && layout.data
+            # Filter out Jekyll internal layout properties
+            layout_data = filter_front_matter(layout.data)
+            resolved = deep_merge(resolved, layout_data)
+          end
+        end
+
+        # Also add layout_data for backward compatibility (immediate layout only)
+        immediate_layout = site.layouts[item.data['layout']]
+        if immediate_layout && immediate_layout.data
+          item.data['layout_data'] = immediate_layout.data
         end
       end
 
       # Finally merge page data (highest priority)
-      resolved = deep_merge(resolved, item.data)
+      # Filter out Jekyll internal properties
+      page_data = filter_front_matter(item.data)
+      resolved = deep_merge(resolved, page_data)
 
       # Add the resolved data to the item
       item.data['resolved'] = resolved

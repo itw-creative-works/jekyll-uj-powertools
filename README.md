@@ -133,16 +133,23 @@ After checking out the repo, run `bin/setup` to install dependencies. You can al
 
 To install this gem onto your local machine, run `bundle exec rake install`.
 
-To release a new version, update the version number in the `.gemspec` and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and the created tag, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+
+
 
 ## ⚠️ Testing
 Run the tests
 ```shell
-bundle install
-bundle exec rspec
+bundle install && bundle exec rspec
+```
+
+Test in your [Ultimate Jekyll Site](http://github.com/itw-creative-works/ultimate-jekyll)
+```shell
+npm start -- --ujPluginDevMode=true
 ```
 
 ## 💎 Build + Publish the Gem
+To release a new version, update the version number in the `.gemspec` and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and the created tag, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+
 ```shell
 # Release
 bundle exec rake release
