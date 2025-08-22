@@ -1,4 +1,4 @@
-require 'jekyll-uj-powertools'
+require_relative '../spec_helper'
 
 RSpec.describe 'Jekyll Hooks - Inject Properties' do
   let(:site) do
@@ -43,6 +43,27 @@ RSpec.describe 'Jekyll Hooks - Inject Properties' do
       Jekyll::Hooks.trigger(:site, :pre_render, site)
 
       expect(site.config['uj']['cache_breaker']).to eq(timestamp)
+    end
+
+    it 'initializes date properties with year, month, and day' do
+      Jekyll::Hooks.trigger(:site, :pre_render, site)
+      
+      expect(site.config['uj']['date']).to be_a(Hash)
+      expect(site.config['uj']['date']['year']).to eq(Time.now.year)
+      expect(site.config['uj']['date']['month']).to eq(Time.now.month)
+      expect(site.config['uj']['date']['day']).to eq(Time.now.day)
+    end
+
+    it 'preserves existing date config and updates values' do
+      existing_date = { 'custom_key' => 'custom_value' }
+      site.config['uj'] = { 'date' => existing_date }
+
+      Jekyll::Hooks.trigger(:site, :pre_render, site)
+
+      expect(site.config['uj']['date']['custom_key']).to eq('custom_value')
+      expect(site.config['uj']['date']['year']).to eq(Time.now.year)
+      expect(site.config['uj']['date']['month']).to eq(Time.now.month)
+      expect(site.config['uj']['date']['day']).to eq(Time.now.day)
     end
   end
 

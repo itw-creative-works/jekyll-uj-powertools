@@ -1,4 +1,4 @@
-require 'jekyll-uj-powertools'
+require_relative '../spec_helper'
 
 RSpec.describe Jekyll::UJPowertools::IfTruthyTag do
   let(:site) { Jekyll::Site.new(Jekyll.configuration) }

@@ -1,11 +1,12 @@
-require 'jekyll-uj-powertools'
+require_relative '../spec_helper'
 
-RSpec.describe Jekyll::InjectData do
+RSpec.describe Jekyll::InjectProperties do
   let(:site) do
-    double('site', 
-      pages: [page], 
+    double('site',
+      pages: [page],
       collections: { 'posts' => collection },
       layouts: { 'default' => layout },
+      source: '/home/site',
       config: {
         'title' => 'Site Title',
         'description' => 'Site Description',
@@ -18,9 +19,9 @@ RSpec.describe Jekyll::InjectData do
   end
 
   let(:page) do
-    double('page', 
+    double('page',
       data: {},
-      path: '/path/to/page.html'
+      path: '/home/site/about/index.html'
     )
   end
 
@@ -36,15 +37,15 @@ RSpec.describe Jekyll::InjectData do
   end
 
   let(:layout) do
-    double('layout', data: { 
-      'title' => 'Default Layout', 
+    double('layout', data: {
+      'title' => 'Default Layout',
       'description' => 'A default layout',
       'value' => { 'check' => 'layout_value' },
       'nested' => { 'foo' => 'layout_foo', 'baz' => 'layout_baz' }
     })
   end
 
-  let(:generator) { Jekyll::InjectData.new }
+  let(:generator) { Jekyll::InjectProperties.new }
 
   before do
     # Reset random seed for consistent testing
@@ -55,7 +56,7 @@ RSpec.describe Jekyll::InjectData do
     it 'processes all pages and documents' do
       expect(generator).to receive(:inject_data).with(page, site)
       expect(generator).to receive(:inject_data).with(document, site)
-      
+
       generator.generate(site)
     end
   end
@@ -74,6 +75,7 @@ RSpec.describe Jekyll::InjectData do
       it 'injects file extension' do
         expect(page.data['extension']).to eq('.html')
       end
+
 
       it 'does not inject layout_data when no layout is specified' do
         expect(page.data['layout_data']).to be_nil
@@ -107,10 +109,11 @@ RSpec.describe Jekyll::InjectData do
 
     context 'when layout does not exist' do
       let(:site_no_layout) do
-        double('site', 
+        double('site',
           pages: [],
           collections: {},
           layouts: {},
+          source: '/home/site',
           config: {}
         )
       end
@@ -253,6 +256,7 @@ RSpec.describe Jekyll::InjectData do
           pages: [],
           collections: {},
           layouts: {},
+          source: '/home/site',
           config: {
             'title' => 'Site Title',
             'custom_data' => 'Should be excluded',
@@ -280,6 +284,7 @@ RSpec.describe Jekyll::InjectData do
       end
     end
 
+
     context 'layout chain traversal' do
       let(:base_layout) do
         double('base_layout', data: {
@@ -300,11 +305,12 @@ RSpec.describe Jekyll::InjectData do
         double('site',
           pages: [],
           collections: {},
-          layouts: { 
+          layouts: {
             'base' => base_layout,
             'middle' => middle_layout,
             'default' => layout
           },
+          source: '/home/site',
           config: { 'title' => 'Site Title' }
         )
       end
@@ -327,19 +333,19 @@ RSpec.describe Jekyll::InjectData do
           'title' => 'Middle Layout',
           'theme' => { 'main' => { 'class' => 'container' } }
         })
-        
+
         generator.send(:inject_data, page_with_chain, site_with_chain)
       end
 
       it 'traverses the entire layout chain' do
         resolved_theme = page_with_chain.data['resolved']['theme']
-        
+
         # From base layout
         expect(resolved_theme['nav']['enabled']).to eq(true)
-        
+
         # From middle layout
         expect(resolved_theme['main']['class']).to eq('container')
-        
+
         # From page
         expect(resolved_theme['test']).to eq('test_value')
       end
@@ -352,7 +358,7 @@ RSpec.describe Jekyll::InjectData do
       it 'gives parent layouts priority over child layouts' do
         # When a child and parent layout define the same key,
         # the parent (base) layout should win
-        # In this test, both middle and base have 'title', 
+        # In this test, both middle and base have 'title',
         # but base should win (if page didn't override)
         page_no_override = double('page',
           data: {
@@ -361,9 +367,9 @@ RSpec.describe Jekyll::InjectData do
           },
           path: '/path/to/page.html'
         )
-        
+
         generator.send(:inject_data, page_no_override, site_with_chain)
-        
+
         # Base layout's title should win over middle layout's title
         expect(page_no_override.data['resolved']['title']).to eq('Base Layout')
       end
@@ -372,11 +378,11 @@ RSpec.describe Jekyll::InjectData do
 
   describe 'generator configuration' do
     it 'is marked as safe' do
-      expect(Jekyll::InjectData.safe).to be true
+      expect(Jekyll::InjectProperties.safe).to be true
     end
 
     it 'has low priority' do
-      expect(Jekyll::InjectData.priority).to eq(:low)
+      expect(Jekyll::InjectProperties.priority).to eq(:low)
     end
   end
 end

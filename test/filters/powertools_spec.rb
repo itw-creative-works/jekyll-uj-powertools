@@ -1,4 +1,4 @@
-require 'jekyll-uj-powertools'
+require_relative '../spec_helper'
 
 RSpec.describe Jekyll::UJPowertools do
   # Dummy class to include the filter methods
@@ -117,17 +117,6 @@ RSpec.describe Jekyll::UJPowertools do
     end
   end
 
-  # Test Year method
-  describe '.uj_year' do
-    it 'returns the current year' do
-      expect(dummy.uj_year(nil)).to eq(Time.now.year)
-    end
-
-    it 'ignores input parameter' do
-      expect(dummy.uj_year('ignored')).to eq(Time.now.year)
-      expect(dummy.uj_year(2020)).to eq(Time.now.year)
-    end
-  end
 
   # Test Title Case method
   describe '.uj_title_case' do
@@ -246,6 +235,105 @@ RSpec.describe Jekyll::UJPowertools do
         result = dummy.uj_content_format('test content')
         expect(result).to eq('liquified content')
       end
+    end
+  end
+
+  # Test Pretty JSON method
+  describe '.uj_jsonify' do
+    it 'pretty prints simple objects' do
+      input = { 'name' => 'John', 'age' => 30 }
+      expected = "{\n  \"name\": \"John\",\n  \"age\": 30\n}"
+      expect(dummy.uj_jsonify(input)).to eq(expected)
+    end
+
+    it 'pretty prints arrays' do
+      input = ['apple', 'banana', 'cherry']
+      expected = "[\n  \"apple\",\n  \"banana\",\n  \"cherry\"\n]"
+      expect(dummy.uj_jsonify(input)).to eq(expected)
+    end
+
+    it 'pretty prints nested objects' do
+      input = {
+        'user' => {
+          'name' => 'John',
+          'contacts' => {
+            'email' => 'john@example.com',
+            'phone' => '123-456-7890'
+          }
+        }
+      }
+      expected = "{\n  \"user\": {\n    \"name\": \"John\",\n    \"contacts\": {\n      \"email\": \"john@example.com\",\n      \"phone\": \"123-456-7890\"\n    }\n  }\n}"
+      expect(dummy.uj_jsonify(input)).to eq(expected)
+    end
+
+    it 'pretty prints arrays with objects' do
+      input = [
+        { 'id' => 1, 'name' => 'Item 1' },
+        { 'id' => 2, 'name' => 'Item 2' }
+      ]
+      expected = "[\n  {\n    \"id\": 1,\n    \"name\": \"Item 1\"\n  },\n  {\n    \"id\": 2,\n    \"name\": \"Item 2\"\n  }\n]"
+      expect(dummy.uj_jsonify(input)).to eq(expected)
+    end
+
+    it 'handles empty objects' do
+      expect(dummy.uj_jsonify({})).to eq("{\n}")
+    end
+
+    it 'handles empty arrays' do
+      expect(dummy.uj_jsonify([])).to eq("[\n\n]")
+    end
+
+    it 'handles null values' do
+      input = { 'value' => nil }
+      expected = "{\n  \"value\": null\n}"
+      expect(dummy.uj_jsonify(input)).to eq(expected)
+    end
+
+    it 'handles boolean values' do
+      input = { 'active' => true, 'deleted' => false }
+      expected = "{\n  \"active\": true,\n  \"deleted\": false\n}"
+      expect(dummy.uj_jsonify(input)).to eq(expected)
+    end
+
+    it 'handles numbers' do
+      input = { 'integer' => 42, 'float' => 3.14 }
+      expected = "{\n  \"integer\": 42,\n  \"float\": 3.14\n}"
+      expect(dummy.uj_jsonify(input)).to eq(expected)
+    end
+
+    it 'uses custom indent size when specified' do
+      input = { 'name' => 'John', 'age' => 30 }
+
+      # 4 spaces
+      expected_4 = "{\n    \"name\": \"John\",\n    \"age\": 30\n}"
+      expect(dummy.uj_jsonify(input, 4)).to eq(expected_4)
+
+      # 1 space
+      expected_1 = "{\n \"name\": \"John\",\n \"age\": 30\n}"
+      expect(dummy.uj_jsonify(input, 1)).to eq(expected_1)
+
+      # 0 spaces (no indent)
+      expected_0 = "{\n\"name\": \"John\",\n\"age\": 30\n}"
+      expect(dummy.uj_jsonify(input, 0)).to eq(expected_0)
+    end
+
+    it 'handles nested objects with custom indent' do
+      input = {
+        'user' => {
+          'name' => 'John',
+          'contacts' => {
+            'email' => 'john@example.com'
+          }
+        }
+      }
+      expected = "{\n    \"user\": {\n        \"name\": \"John\",\n        \"contacts\": {\n            \"email\": \"john@example.com\"\n        }\n    }\n}"
+      expect(dummy.uj_jsonify(input, 4)).to eq(expected)
+    end
+
+    it 'converts string indent to integer' do
+      input = { 'name' => 'John' }
+      expected = "{\n   \"name\": \"John\"\n}"
+      expect(dummy.uj_jsonify(input, '3')).to eq(expected)
     end
   end
 end

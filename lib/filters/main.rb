@@ -1,11 +1,12 @@
 # Libraries
 require "jekyll"
+require "json"
 
 # Filters
 module Jekyll
   module UJPowertools
-    # Initialize a timestamp that will remain consistent across calls
-    @cache_timestamp = Time.now.to_i.to_s
+    # Initialize a timestamp that will remain consistent across calls (with milliseconds)
+    @cache_timestamp = (Time.now.to_f * 1000).to_i.to_s
 
     # Strip ads from the input
     def uj_strip_ads(input)
@@ -48,11 +49,6 @@ module Jekyll
       rand(input)
     end
 
-    # Return the current year
-    def uj_year(input)
-      Time.now.year
-    end
-
     # Title case
     def uj_title_case(input)
       input.split(' ').map(&:capitalize).join(' ')
@@ -79,11 +75,18 @@ module Jekyll
 
     # Format content based on file extension - apply liquify and markdownify for .md files
     def uj_content_format(input)
+      # Return empty string if input is nil
+      return '' unless input
+      
       # Get the current page from context
       page = @context.registers[:page] if @context.respond_to?(:registers)
       page ||= @context[:registers][:page] if @context.is_a?(Hash)
+      
+      # Get site from context
+      site = @context.registers[:site] if @context.respond_to?(:registers)
+      site ||= @context[:registers][:site] if @context.is_a?(Hash)
 
-      # Apply liquify first
+      # Simply apply liquify first (markdown images are already converted to uj_image tags by the hook)
       liquified = if @context.respond_to?(:registers)
         Liquid::Template.parse(input).render(@context)
       else
@@ -91,21 +94,36 @@ module Jekyll
       end
 
       # Check if the page extension is .md
-      if page && page['extension'] == '.md'
+      if page && page['extension'] == '.md' && site
         # Apply markdownify for markdown files
-        site = @context.registers[:site] if @context.respond_to?(:registers)
-        site ||= @context[:registers][:site] if @context.is_a?(Hash)
-
-        if site
-          converter = site.find_converter_instance(Jekyll::Converters::Markdown)
-          converter.convert(liquified)
-        else
-          liquified
-        end
+        converter = site.find_converter_instance(Jekyll::Converters::Markdown)
+        converter.convert(liquified)
       else
         # Return just liquified content for non-markdown files
         liquified
       end
+    end
+
+    # Pretty print JSON with configurable indentation (default 2 spaces)
+    def uj_jsonify(input, indent_size = 2)
+      indent_string = ' ' * indent_size.to_i
+      JSON.pretty_generate(input, indent: indent_string)
+    end
+    
+    private
+    
+    # Helper method to safely dig through nested hashes
+    def dig_value(hash, *keys)
+      return nil unless hash
+      
+      value = hash
+      keys.each do |key|
+        return nil unless value.is_a?(Hash)
+        value = value[key]
+        return nil if value.nil?
+      end
+      
+      value
     end
   end
 end

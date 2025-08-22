@@ -3,7 +3,7 @@
 
 # Generator
 module Jekyll
-  class InjectData < Generator
+  class InjectProperties < Generator
     safe true
     priority :low
 
@@ -114,6 +114,27 @@ module Jekyll
         item.data['extension'] = File.extname(item.path)
       end
 
+
+      # Inject canonical URL
+      if item.respond_to?(:url)
+        page_url_stripped = item.url.sub(/index\.html$/, '')
+        page_url_stripped = '' if page_url_stripped == '/'
+        site_url = site.config['url'] || ''
+        item.data['canonical'] = {
+          'url' => site_url + page_url_stripped,
+          'path' => page_url_stripped.empty? ? '/' : page_url_stripped
+        }
+      end
+
+      # Inject page type based on post or member properties
+      if item.data['post']
+        item.data['type'] = 'post'
+      elsif item.data['member']
+        item.data['type'] = 'member'
+      else
+        item.data['type'] = 'basic'
+      end
+
       # Set resolved data for site, layout, and page
       # Create a deep merge of site -> child layouts -> parent layouts -> page data
       # Priority: page (highest) -> parent layouts -> child layouts -> site (lowest)
@@ -155,5 +176,6 @@ module Jekyll
       # Add the resolved data to the item
       item.data['resolved'] = resolved
     end
+
   end
 end

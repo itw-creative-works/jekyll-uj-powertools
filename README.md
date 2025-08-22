@@ -70,6 +70,33 @@ Convert a string to title case.
 {{ "hello world" | uj_title_case }}
 ```
 
+### `uj_content_format` Filter
+Process content with Liquid templating and Markdown conversion, automatically transforming markdown images to responsive `uj_image` tags.
+
+```liquid
+{{ post.content | uj_content_format }}
+```
+
+This filter:
+- Transforms markdown images `![alt](url)` to `{% uj_image "url", alt="alt", class="..." %}`
+- Automatically pulls image class from `page.resolved.theme.blog.image.class`
+- Processes Liquid tags in the content
+- Converts Markdown to HTML (for .md files)
+
+If no class is specified in frontmatter, the `uj_image` tag will be rendered without a class attribute.
+
+#### Frontmatter Configuration Example
+```yaml
+---
+theme:
+  blog:
+    image:
+      class: "img-fluid rounded-3 shadow"
+---
+```
+
+With this frontmatter, all markdown images in the post will automatically use the specified class.
+
 ## Global Variables
 ### `site.uj.cache_breaker` Variable
 Use the `site.uj.cache_breaker` variable to append a cache-busting query parameter to your assets.
@@ -141,6 +168,73 @@ A custom Liquid tag that checks if a variable is falsy (nil, false, empty string
 {% iffalsy my_variable %}
   <p>This content will only be rendered if my_variable is falsy.</p>
 {% endifalsy %}
+```
+
+### `uj_icon` Tag
+A custom Liquid tag that renders a Font Awesome icon with the specified style and name. It supports `name` and `class` parameters.
+```liquid
+{% uj_icon "rocket", "fa-lg me-2" %}
+```
+
+### `uj_fake_comments` Tag
+Generates a fake comment count based on content word count for demonstration purposes.
+```liquid
+{% uj_fake_comments %}
+{% uj_fake_comments page.content %}
+```
+
+### `uj_image` Tag
+Renders responsive images with WebP support and lazy loading.
+```liquid
+{% uj_image "/assets/images/hero.jpg", max_width="1024", alt="Hero image" %}
+{% uj_image page.featured_image, class="img-fluid", webp="false" %}
+```
+
+### `uj_language` Tag
+Converts ISO language codes to language names in English or native format.
+```liquid
+{% uj_language "es" %}
+{% uj_language page.language, "native" %}
+```
+
+### `uj_member` Tag
+Retrieves member information from site team collection.
+```liquid
+{% uj_member "john-doe", "name" %}
+{% uj_member page.author, "url" %}
+{% uj_member member_id, "image" %}
+{% uj_member "john-doe", "image-tag", max_width="640", class="team-photo" %}
+```
+
+The `image-tag` property renders a responsive image using the `uj_image` tag with all its features (WebP, lazy loading, responsive sizes). You can pass any `uj_image` options as additional parameters.
+
+### `uj_post` Tag
+Fetches post data from site collections.
+```liquid
+{% uj_post "my-post-slug", "title" %}
+{% uj_post post.id, "description" %}
+{% uj_post current_post, "image-url" %}
+```
+
+### `uj_readtime` Tag
+Calculates estimated reading time based on content (200 words per minute).
+```liquid
+{% uj_readtime %}
+{% uj_readtime page.content %}
+```
+
+### `uj_social` Tag
+Generates social media URLs from platform handles.
+```liquid
+{% uj_social "twitter" %}
+{% uj_social "github" %}
+```
+
+### `uj_translation_url` Tag
+Creates language-specific URLs for multilingual sites.
+```liquid
+{% uj_translation_url "es", page.url %}
+{% uj_translation_url target_lang, "/pricing" %}
 ```
 
 ## Final notes
