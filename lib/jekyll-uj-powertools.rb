@@ -13,15 +13,16 @@ module Jekyll
   require_relative "hooks/markdown-images"
 
   # Load Tags
-  require_relative "tags/iftruthy"
-  require_relative "tags/iffalsy"
-  require_relative "tags/icon"
-  require_relative "tags/social"
-  require_relative "tags/readtime"
   require_relative "tags/fake_comments"
-  require_relative "tags/member"
+  require_relative "tags/icon"
+  require_relative "tags/iffalsy"
+  require_relative "tags/iffile"
+  require_relative "tags/iftruthy"
   require_relative "tags/image"
-  require_relative "tags/post"
   require_relative "tags/language"
+  require_relative "tags/member"
+  require_relative "tags/post"
+  require_relative "tags/readtime"
+  require_relative "tags/social"
   require_relative "tags/translation_url"
 end
