@@ -1,8 +1,10 @@
 # Libraries
 require "jekyll"
+require_relative '../helpers/variable_resolver'
 
 module Jekyll
   class UJImageTag < Liquid::Tag
+    include UJPowertools::VariableResolver
     def initialize(tag_name, markup, tokens)
       super
       @markup = markup.strip
@@ -12,10 +14,12 @@ module Jekyll
       # Parse arguments
       args = parse_arguments(@markup)
       src_input = args[0]
-      options = parse_options(args[1..-1])
 
-      # Resolve source path
-      src = resolve_variable(context, src_input)
+      # Parse options and resolve their values
+      options = parse_options(args[1..-1], context)
+
+      # Resolve source path (treat unquoted strings as literals)
+      src = resolve_input(context, src_input, true)
       return '' unless src
 
       # Check if this is an external URL
@@ -40,66 +44,7 @@ module Jekyll
 
     private
 
-    def parse_arguments(markup)
-      args = []
-      current_arg = ''
-      in_quotes = false
-      quote_char = nil
-
-      markup.each_char do |char|
-        if !in_quotes && (char == '"' || char == "'")
-          in_quotes = true
-          quote_char = char
-          current_arg += char
-        elsif in_quotes && char == quote_char
-          in_quotes = false
-          quote_char = nil
-          current_arg += char
-        elsif !in_quotes && char == ','
-          args << current_arg.strip
-          current_arg = ''
-        else
-          current_arg += char
-        end
-      end
-
-      args << current_arg.strip if current_arg.strip.length > 0
-      args
-    end
-
-    def parse_options(option_args)
-      options = {}
-
-      option_args.each do |arg|
-        if arg.include?('=')
-          key, value = arg.split('=', 2)
-          key = key.strip.gsub(/^['"]|['"]$/, '')
-          value = value.strip.gsub(/^['"]|['"]$/, '')
-          options[key] = value
-        end
-      end
-
-      options
-    end
-
-    def resolve_variable(context, variable_input)
-      # Strip quotes if present
-      if variable_input.match(/^['"]/)
-        variable_input.gsub(/^['"]|['"]$/, '')
-      else
-        # Resolve as variable
-        parts = variable_input.split('.')
-        current = context
-
-        parts.each do |part|
-          return nil unless current.respond_to?(:[]) || current.is_a?(Hash)
-          current = current[part]
-          return nil if current.nil?
-        end
-
-        current
-      end
-    end
+    # parse_arguments and parse_options methods are now provided by VariableResolver module
 
     def build_picture_element(src, src_path, extension, max_width, options)
       html = "<picture>\n"
@@ -194,10 +139,10 @@ module Jekyll
       html += " data-lazy=\"@src #{src}\""
       html += " class=\"#{css_class}\"" unless css_class.empty?
       html += " alt=\"#{alt}\""
+      html += " loading=\"#{loading}\""
       html += " style=\"#{style}\"" unless style.empty?
       html += " width=\"#{width}\"" unless width.empty?
       html += " height=\"#{height}\"" unless height.empty?
-      html += " loading=\"#{loading}\""
       html += ">"
 
       html

@@ -1,8 +1,10 @@
 # Libraries
 require "jekyll"
+require_relative '../helpers/variable_resolver'
 
 module Jekyll
   class UJSocialTag < Liquid::Tag
+    include UJPowertools::VariableResolver
     # Social platform URL patterns
     SOCIAL_URLS = {
       'facebook' => 'https://facebook.com/%s',
@@ -28,14 +30,8 @@ module Jekyll
     end
 
     def render(context)
-      # Parse the platform name (can be quoted or unquoted)
-      platform_input = parse_argument(@markup)
-      
-      # Resolve the platform name (could be a variable or literal string)
-      platform = resolve_variable(context, platform_input)
-      
-      # If it didn't resolve to anything, use the input as a literal string
-      platform = platform_input if platform.nil? || platform.empty?
+      # Resolve the platform name (handles both literals and variables)
+      platform = resolve_input(context, @markup) || @markup
       
       # Get the social handle from page.resolved.socials.{platform}
       page = context['page']
@@ -54,30 +50,7 @@ module Jekyll
     
     private
     
-    def parse_argument(markup)
-      # Remove quotes if present
-      cleaned = markup.strip
-      if (cleaned.start_with?('"') && cleaned.end_with?('"')) ||
-         (cleaned.start_with?("'") && cleaned.end_with?("'"))
-        cleaned[1..-2]
-      else
-        cleaned
-      end
-    end
-    
-    def resolve_variable(context, variable_name)
-      # Handle nested variable access like page.social
-      parts = variable_name.split('.')
-      current = context
-      
-      parts.each do |part|
-        return nil unless current.respond_to?(:[]) || current.is_a?(Hash)
-        current = current[part]
-        return nil if current.nil?
-      end
-      
-      current
-    end
+    # parse_argument and resolve_variable methods are now provided by VariableResolver module
   end
 end
 

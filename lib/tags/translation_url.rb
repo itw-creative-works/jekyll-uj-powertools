@@ -1,27 +1,25 @@
 # Libraries
 require "jekyll"
+require_relative '../helpers/variable_resolver'
 
 module Jekyll
   class UJTranslationUrlTag < Liquid::Tag
+    include UJPowertools::VariableResolver
     def initialize(tag_name, markup, tokens)
       super
       @markup = markup.strip
     end
 
     def render(context)
-      # Parse arguments that can be quoted or unquoted
+      # Parse arguments using helper
       parts = parse_arguments(@markup)
       
       # Return root if no arguments
       return '/' if parts.empty? || parts[0].nil?
       
-      language_code_input = parts[0]
-      url_path_input = parts[1] || '/'
-
-      # Resolve language code (literal or variable)
-      language_code = resolve_argument_value(context, language_code_input)
-      # Resolve URL path (literal or variable)  
-      url_path = resolve_argument_value(context, url_path_input)
+      # Resolve both arguments using helper (handles literals and variables)
+      language_code = resolve_input(context, parts[0])
+      url_path = resolve_input(context, parts[1]) || '/'
 
       # Get site and translation config from context
       site = context.registers[:site]
@@ -46,80 +44,7 @@ module Jekyll
 
     private
 
-    def parse_arguments(markup)
-      # Parse arguments that can be quoted or unquoted
-      # Examples: 'es', '/pricing'  OR  language, page.canonical.path  OR  'es', page.url
-      args = []
-      current_arg = ''
-      in_quotes = false
-      quote_char = nil
-
-      markup.each_char.with_index do |char, i|
-        if !in_quotes && (char == '"' || char == "'")
-          # Start of quoted string - include the quote in the arg
-          in_quotes = true
-          quote_char = char
-          current_arg += char
-        elsif in_quotes && char == quote_char
-          # End of quoted string - include the quote in the arg
-          current_arg += char
-          in_quotes = false
-          quote_char = nil
-        elsif !in_quotes && char == ','
-          # Argument separator
-          args << current_arg.strip
-          current_arg = ''
-        else
-          # Regular character
-          current_arg += char
-        end
-      end
-
-      # Add the last argument
-      args << current_arg.strip if current_arg.strip.length > 0
-
-      args
-    end
-
-    def resolve_argument_value(context, argument_input)
-      return '' if argument_input.nil? || argument_input.empty?
-
-      # Check if the argument was originally quoted (literal string)
-      is_quoted = argument_input.match(/^['"].*['"]$/)
-
-      # If quoted, remove quotes and use as literal. Otherwise, try to resolve as variable
-      if is_quoted
-        # Remove quotes from literal string
-        resolved_value = argument_input[1..-2]
-      else
-        # Try to resolve as a variable
-        resolved_value = resolve_variable(context, argument_input)
-        # If variable resolved to nil, return empty string
-        return '' if resolved_value.nil?
-        # If it didn't resolve to a string, use the resolved value
-        resolved_value = resolved_value.to_s if resolved_value
-      end
-
-      resolved_value.to_s
-    end
-
-    def resolve_variable(context, variable_name)
-      parts = variable_name.split('.')
-      current = context
-
-      parts.each do |part|
-        if current.respond_to?(:[])
-          current = current[part]
-        elsif current.respond_to?(:key?) && current.key?(part)
-          current = current[part]
-        else
-          return nil
-        end
-        return nil if current.nil?
-      end
-
-      current
-    end
+    # parse_arguments and resolve_variable methods are now provided by VariableResolver module
 
     def normalize_path(path)
       return '' if path.nil? || path.empty?

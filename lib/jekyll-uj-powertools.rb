@@ -13,6 +13,7 @@ module Jekyll
   require_relative "hooks/markdown-images"
 
   # Load Tags
+  require_relative "tags/external"
   require_relative "tags/fake_comments"
   require_relative "tags/icon"
   require_relative "tags/iffalsy"

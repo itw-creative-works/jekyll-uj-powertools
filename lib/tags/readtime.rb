@@ -1,8 +1,11 @@
 # Libraries
 require "jekyll"
+require_relative '../helpers/variable_resolver'
 
 module Jekyll
   class UJReadtimeTag < Liquid::Tag
+    include UJPowertools::VariableResolver
+    
     def initialize(tag_name, markup, tokens)
       super
       @markup = markup.strip
@@ -35,23 +38,9 @@ module Jekyll
         return nil unless page
         page['content']
       else
-        # Resolve the variable name
-        resolve_variable(context, @markup)
+        # Use the helper to resolve input (handles both literals and variables)
+        resolve_input(context, @markup)
       end
-    end
-    
-    def resolve_variable(context, variable_name)
-      # Handle nested variable access like page.content or include.content
-      parts = variable_name.split('.')
-      current = context
-      
-      parts.each do |part|
-        return nil unless current.respond_to?(:[]) || current.is_a?(Hash)
-        current = current[part]
-        return nil if current.nil?
-      end
-      
-      current
     end
     
     def strip_html(content)

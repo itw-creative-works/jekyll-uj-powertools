@@ -1,8 +1,10 @@
 # Libraries
 require "jekyll"
+require_relative '../helpers/variable_resolver'
 
 module Jekyll
   class UJMemberTag < Liquid::Tag
+    include UJPowertools::VariableResolver
     def initialize(tag_name, markup, tokens)
       super
       @markup = markup.strip
@@ -17,17 +19,10 @@ module Jekyll
       # Strip quotes from property if present
       property = property_input.gsub(/^['"]|['"]$/, '')
 
-      # Check if the member input was originally quoted
-      is_quoted = member_input && member_input.match(/^['"]/)
-
       # Resolve member ID
-      if is_quoted
-        # If quoted, strip quotes and use as literal
-        member_id = member_input.gsub(/^['"]|['"]$/, '')
-      else
-        # Otherwise resolve as variable
-        member_id = resolve_member_id(context, member_input)
-      end
+      member_id = is_quoted?(member_input) ?
+                  member_input.gsub(/^['"]|['"]$/, '') :
+                  resolve_member_id(context, member_input)
       return '' unless member_id
 
       # Find member in site.team collection

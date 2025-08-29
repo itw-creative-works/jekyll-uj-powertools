@@ -1,10 +1,12 @@
 # Libraries
-# ...
+require_relative '../helpers/variable_resolver'
 
 # Tag
 module Jekyll
   module UJPowertools
     class IfFileTag < Liquid::Block
+      include VariableResolver
+      
       def initialize(tag_name, markup, tokens)
         super
         @path = markup.strip
@@ -14,18 +16,11 @@ module Jekyll
         # Get the site object
         site = context.registers[:site]
 
-        # Resolve the path variable if it's a variable name
-        path = context[@path] || @path
-
-        # Handle nested variables like page.css_path
-        if @path.include?('.')
-          parts = @path.split('.')
-          path = context[parts.first]
-          parts[1..-1].each do |part|
-            path = path.is_a?(Hash) ? path[part] : nil
-            break if path.nil?
-          end
-        end
+        # Use the helper to resolve input (handles both literals and variables)
+        path = resolve_input(context, @path)
+        
+        # Return empty if path couldn't be resolved
+        return "" unless path
 
         # Ensure path starts with /
         path = "/#{path}" unless path.to_s.start_with?('/')

@@ -1,8 +1,10 @@
 # Libraries
 require "jekyll"
+require_relative '../helpers/variable_resolver'
 
 module Jekyll
   class UJLanguageTag < Liquid::Tag
+    include UJPowertools::VariableResolver
     # Language mappings: ISO code => [English name, Native name]
     LANGUAGE_MAPPINGS = {
       'aa' => ['Afar', 'Afaraf'],
@@ -197,34 +199,25 @@ module Jekyll
     end
 
     def render(context)
-      # Parse arguments that can be quoted or unquoted
+      # Parse arguments using helper
       parts = parse_arguments(@markup)
-      iso_code_input = parts[0]
-      output_type = parts[1] || 'english' # default to english
-
-      # Check if the input was originally quoted (literal string)
-      is_quoted = @markup.strip.match(/^['"]/)
-
-      # If quoted, use as literal. Otherwise, try to resolve as variable
-      if is_quoted
-        iso_code = iso_code_input
-      else
-        # Try to resolve as a variable
-        iso_code = resolve_variable(context, iso_code_input)
-        # If it didn't resolve to a string, use the input as literal
-        iso_code = iso_code_input if iso_code.nil? || !iso_code.is_a?(String)
+      
+      # Resolve first argument - if it resolves to non-string, use the literal
+      iso_code = parts[0]
+      if iso_code
+        resolved = resolve_input(context, iso_code, true)
+        # If resolved value is not a string, treat the input as literal
+        if resolved.is_a?(String)
+          # Strip any quotes from the resolved string value
+          iso_code = resolved.gsub(/^['"]|['"]$/, '')
+        else
+          # Strip quotes if present and use as literal
+          iso_code = iso_code.gsub(/^['"]|['"]$/, '')
+        end
       end
-
-      # Strip quotes from resolved iso code if present
-      if iso_code.is_a?(String) && iso_code.match(/^['"].*['"]$/)
-        iso_code = iso_code[1..-2]
-      end
-
-      # Strip quotes from output type if present
-      if output_type.is_a?(String) && output_type.match(/^['"].*['"]$/)
-        output_type = output_type[1..-2]
-      end
-
+      
+      output_type = resolve_input(context, parts[1], true) || 'english' # default to english
+      
       # Convert to lowercase for lookup
       iso_code = iso_code.to_s.downcase
       output_type = output_type.to_s.downcase
@@ -240,60 +233,6 @@ module Jekyll
       else
         language_data[0] # English name (default)
       end
-    end
-
-    private
-
-    def parse_arguments(markup)
-      # Parse arguments that can be quoted or unquoted
-      # Examples: de, english  OR  'de', 'english'  OR  myVar, "native"
-      args = []
-      current_arg = ''
-      in_quotes = false
-      quote_char = nil
-
-      markup.each_char.with_index do |char, i|
-        if !in_quotes && (char == '"' || char == "'")
-          # Start of quoted string
-          in_quotes = true
-          quote_char = char
-        elsif in_quotes && char == quote_char
-          # End of quoted string
-          in_quotes = false
-          quote_char = nil
-        elsif !in_quotes && char == ','
-          # Argument separator
-          args << current_arg.strip
-          current_arg = ''
-        else
-          # Regular character
-          current_arg += char
-        end
-      end
-
-      # Add the last argument
-      args << current_arg.strip if current_arg.strip.length > 0
-
-      args
-    end
-
-    def resolve_variable(context, variable_name)
-      # Handle nested variable access like page.language
-      parts = variable_name.split('.')
-      current = context
-
-      parts.each do |part|
-        if current.respond_to?(:[])
-          current = current[part]
-        elsif current.respond_to?(:key?) && current.key?(part)
-          current = current[part]
-        else
-          return nil
-        end
-        return nil if current.nil?
-      end
-
-      current
     end
   end
 end

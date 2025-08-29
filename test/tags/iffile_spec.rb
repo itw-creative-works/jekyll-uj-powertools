@@ -6,16 +6,12 @@ RSpec.describe Jekyll::UJPowertools::IfFileTag do
 
   # Helper to create mock static files
   def add_static_file(path)
-    # Remove leading slash for relative_path
+    # Remove leading slash for relative_path since Jekyll's static_files use relative paths
     relative_path = path.start_with?('/') ? path[1..-1] : path
     
     static_file = double('StaticFile')
     allow(static_file).to receive(:relative_path).and_return(relative_path)
     site.static_files << static_file
-    
-    # Debug output
-    puts "[TEST] Added static file: #{relative_path}"
-    puts "[TEST] Total static files: #{site.static_files.length}"
   end
 
   def render_tag(path, content)
@@ -31,7 +27,8 @@ RSpec.describe Jekyll::UJPowertools::IfFileTag do
   describe 'basic file existence checks' do
     it 'renders content when file exists' do
       add_static_file('assets/styles.css')
-      expect(render_tag('assets/styles.css', 'FILE EXISTS')).to eq('FILE EXISTS')
+      result = render_tag('assets/styles.css', 'FILE EXISTS')
+      expect(result).to eq('FILE EXISTS')
     end
 
     it 'renders content when file exists with leading slash' do

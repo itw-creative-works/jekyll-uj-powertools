@@ -1,8 +1,10 @@
 # Libraries
 require "jekyll"
+require_relative '../helpers/variable_resolver'
 
 module Jekyll
   class UJIconTag < Liquid::Tag
+    include UJPowertools::VariableResolver
     # Default icon to show when requested icon is not found
     DEFAULT_ICON = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M320 64C334.7 64 348.2 72.1 355.2 85L571.2 485C577.9 497.4 577.6 512.4 570.4 524.5C563.2 536.6 550.1 544 536 544L104 544C89.9 544 76.9 536.6 69.6 524.5C62.3 512.4 62.1 497.4 68.8 485L284.8 85C291.8 72.1 305.3 64 320 64zM320 232C306.7 232 296 242.7 296 256L296 368C296 381.3 306.7 392 320 392C333.3 392 344 381.3 344 368L344 256C344 242.7 333.3 232 320 232zM346.7 448C347.3 438.1 342.4 428.7 333.9 423.5C325.4 418.4 314.7 418.4 306.2 423.5C297.7 428.7 292.8 438.1 293.4 448C292.8 457.9 297.7 467.3 306.2 472.5C314.7 477.6 325.4 477.6 333.9 472.5C342.4 467.3 347.3 457.9 346.7 448z"/></svg>'
 
@@ -69,28 +71,25 @@ module Jekyll
     end
 
     def render(context)
-      # Parse arguments that can be quoted or unquoted
+      # Parse arguments using helper
       parts = parse_arguments(@markup)
-      icon_name_input = parts[0]
-      css_classes = parts[1]
-
-      # Check if the input was originally quoted (literal string)
-      is_quoted = @markup.strip.match(/^['"]/)
-
-      # If quoted, use as literal. Otherwise, try to resolve as variable
-      if is_quoted
-        icon_name = icon_name_input
-      else
-        # Try to resolve as a variable
-        icon_name = resolve_variable(context, icon_name_input)
-        # If it didn't resolve to a string, use the input as literal
-        icon_name = icon_name_input if icon_name.nil? || !icon_name.is_a?(String)
+      
+      # Resolve icon name - if it resolves to non-string, use the literal
+      icon_name = parts[0]
+      if icon_name
+        resolved = resolve_input(context, icon_name, true)
+        # If resolved value is not a string, treat the input as literal
+        if resolved.is_a?(String)
+          # Strip any quotes from the resolved string value
+          icon_name = resolved.gsub(/^['"]|['"]$/, '')
+        else
+          # Strip quotes if present and use as literal
+          icon_name = icon_name.gsub(/^['"]|['"]$/, '')
+        end
       end
-
-      # Strip quotes from resolved icon name if present
-      if icon_name.is_a?(String) && icon_name.match(/^['"].*['"]$/)
-        icon_name = icon_name[1..-2]
-      end
+      
+      # Resolve CSS classes (treat unquoted strings as literals)
+      css_classes = resolve_input(context, parts[1], true) if parts[1]
 
       # Get site from context
       site = context.registers[:site]
@@ -205,57 +204,7 @@ module Jekyll
       nil
     end
 
-    def parse_arguments(markup)
-      # Parse arguments that can be quoted or unquoted
-      # Examples: award, fa-md  OR  'award', 'fa-md'  OR  myVar, "2em"
-      args = []
-      current_arg = ''
-      in_quotes = false
-      quote_char = nil
-
-      markup.each_char.with_index do |char, i|
-        if !in_quotes && (char == '"' || char == "'")
-          # Start of quoted string
-          in_quotes = true
-          quote_char = char
-        elsif in_quotes && char == quote_char
-          # End of quoted string
-          in_quotes = false
-          quote_char = nil
-        elsif !in_quotes && char == ','
-          # Argument separator
-          args << current_arg.strip
-          current_arg = ''
-        else
-          # Regular character
-          current_arg += char
-        end
-      end
-
-      # Add the last argument
-      args << current_arg.strip if current_arg.strip.length > 0
-
-      args
-    end
-
-    def resolve_variable(context, variable_name)
-      # Handle nested variable access like page.icon
-      parts = variable_name.split('.')
-      current = context
-
-      parts.each do |part|
-        if current.respond_to?(:[])
-          current = current[part]
-        elsif current.respond_to?(:key?) && current.key?(part)
-          current = current[part]
-        else
-          return nil
-        end
-        return nil if current.nil?
-      end
-
-      current
-    end
+    # parse_arguments and resolve_variable methods are now provided by VariableResolver module
   end
 end
 
