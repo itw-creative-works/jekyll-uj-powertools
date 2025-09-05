@@ -16,6 +16,7 @@ module Jekyll
   require_relative "tags/external"
   require_relative "tags/fake_comments"
   require_relative "tags/icon"
+  require_relative "tags/ifurlmatch"
   require_relative "tags/iffalsy"
   require_relative "tags/iffile"
   require_relative "tags/iftruthy"
