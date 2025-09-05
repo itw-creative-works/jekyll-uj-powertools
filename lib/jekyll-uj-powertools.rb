@@ -26,5 +26,5 @@ module Jekyll
   require_relative "tags/readtime"
   require_relative "tags/social"
   require_relative "tags/translation_url"
-  require_relative "tags/urlmatch"
+  require_relative "tags/urlmatches"
 end
