@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    jekyll-uj-powertools (1.6.8)
+    jekyll-uj-powertools (1.6.9)
       jekyll (>= 3.0, < 5.0)
       nokogiri (>= 1.17)
 
