@@ -5,6 +5,8 @@ require_relative '../helpers/variable_resolver'
 module Jekyll
   class UJImageTag < Liquid::Tag
     include UJPowertools::VariableResolver
+    
+    PLACEHOLDER = "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
     def initialize(tag_name, markup, tokens)
       super
       @markup = markup.strip
@@ -46,6 +48,7 @@ module Jekyll
 
     # parse_arguments and parse_options methods are now provided by VariableResolver module
 
+
     def build_picture_element(src, src_path, extension, max_width, options)
       html = "<picture>\n"
 
@@ -65,7 +68,7 @@ module Jekyll
       height = options['height'] || ''
 
       html += "<img\n"
-      html += "src=\"data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==\"\n"
+      html += "src=\"#{PLACEHOLDER}\"\n"
       html += "data-lazy=\"@src #{src}\"\n"
       html += "class=\"#{css_class}\"\n" unless css_class.empty?
       html += "alt=\"#{alt}\"\n"
@@ -135,7 +138,7 @@ module Jekyll
 
       # Build img tag on a single line to prevent markdown parsing issues
       html = "<img"
-      html += " src=\"data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==\""
+      html += " src=\"#{PLACEHOLDER}\""
       html += " data-lazy=\"@src #{src}\""
       html += " class=\"#{css_class}\"" unless css_class.empty?
       html += " alt=\"#{alt}\""

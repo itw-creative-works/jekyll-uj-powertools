@@ -15,4 +15,8 @@ Jekyll::Hooks.register :site, :pre_render do |site|
   site.config['uj']['date']['year'] = now.year
   site.config['uj']['date']['month'] = now.month
   site.config['uj']['date']['day'] = now.day
+
+  # Add placeholder
+  site.config['uj']['placeholder'] ||= {}
+  site.config['uj']['placeholder']['src'] = "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
 end
