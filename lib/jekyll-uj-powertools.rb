@@ -21,6 +21,7 @@ module Jekyll
   require_relative "tags/iftruthy"
   require_relative "tags/image"
   require_relative "tags/language"
+  require_relative "tags/logo"
   require_relative "tags/member"
   require_relative "tags/post"
   require_relative "tags/readtime"

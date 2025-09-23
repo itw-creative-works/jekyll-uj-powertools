@@ -176,6 +176,27 @@ A custom Liquid tag that renders a Font Awesome icon with the specified style an
 {% uj_icon "rocket", "fa-lg me-2" %}
 ```
 
+### `uj_logo` Tag
+A custom Liquid tag that renders company logos from the Ultimate Jekyll Manager assets. It supports brandmarks and combomarks in various colors.
+
+Parameters:
+- `name` (required): The logo name (e.g., "jira", "fitbit", "github")
+- `type` (optional): "brandmarks" (default) or "combomarks"
+- `color` (optional): "original" (default) or any other color variant (e.g., "white", "black")
+
+```liquid
+{% uj_logo "jira" %}
+{% uj_logo "fitbit", "combomarks" %}
+{% uj_logo "slack", "brandmarks", "white" %}
+{% uj_logo site.company.logo, "combomarks", "black" %}
+```
+
+The tag supports dynamic variables and will resolve them from the context:
+```liquid
+{% uj_logo page.sponsor.logo %}
+{% uj_logo site.partner.name, site.partner.type, site.partner.color %}
+```
+
 ### `uj_fake_comments` Tag
 Generates a fake comment count based on content word count for demonstration purposes.
 ```liquid
