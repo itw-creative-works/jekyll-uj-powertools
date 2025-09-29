@@ -55,6 +55,14 @@ module Jekyll
       # Handle empty path (home page)
       return '' if clean_path.empty?
       
+      # Special case: remove index.html from blog paths
+      # This converts "blog/index.html" to "blog"
+      clean_path = clean_path.sub(/^blog\/index\.html$/, 'blog')
+      
+      # Special case: remove .html from blog pagination paths
+      # This converts "blog/page/2.html" to "blog/page/2"
+      clean_path = clean_path.sub(/^blog\/page\/(\d+)\.html$/, 'blog/page/\1')
+      
       clean_path
     end
 
