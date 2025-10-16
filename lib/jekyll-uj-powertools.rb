@@ -28,4 +28,5 @@ module Jekyll
   require_relative "tags/social"
   require_relative "tags/translation_url"
   require_relative "tags/urlmatches"
+  require_relative "tags/video"
 end
