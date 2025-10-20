@@ -50,7 +50,8 @@ module Jekyll
     # parse_arguments and parse_options methods are now provided by VariableResolver module
 
     def build_video_element(src, src_path, extension, max_width, options)
-      html = "<video\n"
+      html = "<div class=\"lazy-loading\" data-lazy-load-container>\n"
+      html += "<video\n"
 
       # Add common video attributes
       css_class = options['class'] || ''
@@ -83,7 +84,8 @@ module Jekyll
 
       # Fallback text
       html += "Your browser does not support the video tag.\n"
-      html += "</video>"
+      html += "</video>\n"
+      html += "</div>"
 
       html
     end
@@ -126,7 +128,8 @@ module Jekyll
       poster = options['poster'] || ''
 
       # Build video tag on a single line to prevent markdown parsing issues
-      html = "<video"
+      html = "<div class=\"lazy-loading\" data-lazy-load-container>"
+      html += "<video"
       html += " class=\"#{css_class}\"" unless css_class.empty?
       html += " style=\"#{style}\"" unless style.empty?
       html += " width=\"#{width}\"" unless width.empty?
@@ -147,6 +150,7 @@ module Jekyll
       html += "<source data-lazy=\"@src #{src}\" type=\"video/#{mime_type}\">"
       html += "Your browser does not support the video tag."
       html += "</video>"
+      html += "</div>"
 
       html
     end
