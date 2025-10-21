@@ -59,7 +59,7 @@ module Jekyll
         # Extract the slug from the Jekyll post ID
         post_id_clean = post.id.gsub(/^\/(\w+)\//, '')
         slug = post_id_clean.gsub(/^\d{4}-\d{2}-\d{2}-/, '')
-        "/assets/images/blog/post-#{custom_id}/#{slug}.jpg"
+        "/assets/images/blog/posts/post-#{custom_id}/#{slug}.jpg"
       when 'image-tag'
         # Generate image path
         # Use the custom post.post.id if available, otherwise fall back to extracting from post.id
@@ -67,7 +67,7 @@ module Jekyll
         # Extract the slug from the Jekyll post ID
         post_id_clean = post.id.gsub(/^\/(\w+)\//, '')
         slug = post_id_clean.gsub(/^\d{4}-\d{2}-\d{2}-/, '')
-        image_path = "/assets/images/blog/post-#{custom_id}/#{slug}.jpg"
+        image_path = "/assets/images/blog/posts/post-#{custom_id}/#{slug}.jpg"
 
         # Parse additional options for the image tag
         image_options = parse_image_options(args[2..-1], context)
@@ -177,8 +177,8 @@ module Jekyll
           # Check standard ID match
           doc.id == post_id_clean ||
           doc.id.include?(post_id_clean) ||
-          # Also check if the post has a custom post.id field that matches
-          (doc.data['post'] && doc.data['post']['id'] == post_id_clean)
+          # Also check if the post has a custom post.id field that matches (convert to string for comparison)
+          (doc.data['post'] && doc.data['post']['id'].to_s == post_id_clean)
         end
         return post if post
       end
@@ -190,8 +190,8 @@ module Jekyll
         post = collection.docs.find do |doc|
           (doc.id == post_id_clean ||
            doc.id.include?(post_id_clean) ||
-           # Check custom post.id field
-           (doc.data['post'] && doc.data['post']['id'] == post_id_clean)) &&
+           # Check custom post.id field (convert to string for comparison)
+           (doc.data['post'] && doc.data['post']['id'].to_s == post_id_clean)) &&
           doc.data['post']
         end
         return post if post

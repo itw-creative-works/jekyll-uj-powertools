@@ -115,7 +115,7 @@ RSpec.describe Jekyll::UJPostTag do
 
     it 'generates image path' do
       result = render_tag("'/posts/2024-01-15-test-post', 'image'")
-      expect(result).to eq('/assets/images/blog/post-123/test-post.jpg')
+      expect(result).to eq('/assets/images/blog/posts/post-123/test-post.jpg')
     end
   end
 
