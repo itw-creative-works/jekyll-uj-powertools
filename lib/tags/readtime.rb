@@ -5,7 +5,7 @@ require_relative '../helpers/variable_resolver'
 module Jekyll
   class UJReadtimeTag < Liquid::Tag
     include UJPowertools::VariableResolver
-    
+
     def initialize(tag_name, markup, tokens)
       super
       @markup = markup.strip
@@ -15,22 +15,22 @@ module Jekyll
       # Get the content to analyze
       content = resolve_content(context)
       return '1' unless content
-      
+
       # Strip HTML tags
       stripped_content = strip_html(content)
-      
+
       # Count words
       words = count_words(stripped_content)
-      
-      # Calculate readtime (200 words per minute, minimum 1 minute)
-      readtime = (words / 200.0).ceil
+
+      # Calculate readtime (269 words per minute, minimum 1 minute)
+      readtime = (words / 269.0).ceil
       readtime = 1 if readtime < 1
-      
+
       readtime.to_s
     end
-    
+
     private
-    
+
     def resolve_content(context)
       if @markup.empty?
         # No argument, use page content
@@ -42,7 +42,7 @@ module Jekyll
         resolve_input(context, @markup)
       end
     end
-    
+
     def strip_html(content)
       # Remove HTML tags
       content = content.to_s.gsub(/<script.*?<\/script>/m, '')
@@ -51,7 +51,7 @@ module Jekyll
       content = content.gsub(/\s+/, ' ')
       content.strip
     end
-    
+
     def count_words(text)
       # Count words (split by whitespace)
       text.split(/\s+/).length
