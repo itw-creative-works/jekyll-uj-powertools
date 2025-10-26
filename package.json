@@ -1,0 +1,17 @@
+{
+  "name": "jekyll-uj-powertools",
+  "version": "1.0.0",
+  "description": "npm script wrappers for Ruby gem commands",
+  "scripts": {
+    "test": "bundle install && bundle exec rspec",
+    "release": "npu sync --message \"Release version\" && bundle exec rake release",
+    "clean": "rm -rf pkg/*"
+  },
+  "keywords": [
+    "jekyll",
+    "ruby",
+    "gem"
+  ],
+  "author": "Ian",
+  "license": "ISC"
+}
