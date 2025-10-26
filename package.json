@@ -4,7 +4,7 @@
   "description": "npm script wrappers for Ruby gem commands",
   "scripts": {
     "test": "bundle install && bundle exec rspec",
-    "release": "npu sync --message \"Release version\" && bundle exec rake release",
+    "release": "bundle exec rake release || npu sync --message \"Release version\" && bundle exec rake release",
     "clean": "rm -rf pkg/*"
   },
   "keywords": [
