@@ -71,7 +71,7 @@ Convert a string to title case.
 ```
 
 ### `uj_content_format` Filter
-Process content with Liquid templating and Markdown conversion, automatically transforming markdown images to responsive `uj_image` tags.
+Process content with Liquid templating and Markdown conversion, automatically transforming markdown and liquid into HTML intelligently based on the file type.
 
 ```liquid
 {{ post.content | uj_content_format }}
