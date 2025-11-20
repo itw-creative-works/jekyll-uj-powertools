@@ -70,6 +70,20 @@ Convert a string to title case.
 {{ "hello world" | uj_title_case }}
 ```
 
+### `uj_commaify` Filter
+Format numbers with commas for better readability (e.g., 10000 becomes 10,000).
+
+```liquid
+{{ 10000 | uj_commaify }}
+<!-- Output: 10,000 -->
+
+{{ 1234567890 | uj_commaify }}
+<!-- Output: 1,234,567,890 -->
+
+{{ 1234.56 | uj_commaify }}
+<!-- Output: 1,234.56 -->
+```
+
 ### `uj_content_format` Filter
 Process content with Liquid templating and Markdown conversion, automatically transforming markdown and liquid into HTML intelligently based on the file type.
 

@@ -142,6 +142,19 @@ module Jekyll
       JSON.pretty_generate(input, indent: indent_string)
     end
 
+    # Format a number with commas (e.g., 10000 becomes 10,000)
+    def uj_commaify(input)
+      return input unless input
+
+      str = input.to_s.strip
+      return input if str.empty?
+
+      # Check if the string is a valid number (integer or decimal, possibly negative)
+      return input unless str.match?(/^-?\d+(\.\d+)?$/)
+
+      str.reverse.gsub(/(\d{3})(?=\d)/, '\\1,').reverse
+    end
+
     private
 
     # Helper method to safely dig through nested hashes

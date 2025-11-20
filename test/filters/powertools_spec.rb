@@ -238,6 +238,59 @@ RSpec.describe Jekyll::UJPowertools do
     end
   end
 
+  # Test Commaify method
+  describe '.uj_commaify' do
+    it 'formats numbers with commas' do
+      expect(dummy.uj_commaify(10000)).to eq('10,000')
+      expect(dummy.uj_commaify(1000000)).to eq('1,000,000')
+      expect(dummy.uj_commaify(1234567890)).to eq('1,234,567,890')
+    end
+
+    it 'handles small numbers without commas' do
+      expect(dummy.uj_commaify(100)).to eq('100')
+      expect(dummy.uj_commaify(999)).to eq('999')
+      expect(dummy.uj_commaify(0)).to eq('0')
+    end
+
+    it 'handles string input' do
+      expect(dummy.uj_commaify('10000')).to eq('10,000')
+      expect(dummy.uj_commaify('5000000')).to eq('5,000,000')
+    end
+
+    it 'handles decimal numbers' do
+      expect(dummy.uj_commaify(1234.56)).to eq('1,234.56')
+      expect(dummy.uj_commaify('9876543.21')).to eq('9,876,543.21')
+    end
+
+    it 'handles negative numbers' do
+      expect(dummy.uj_commaify(-10000)).to eq('-10,000')
+      expect(dummy.uj_commaify('-1234567')).to eq('-1,234,567')
+    end
+
+    it 'handles nil input' do
+      expect(dummy.uj_commaify(nil)).to eq(nil)
+    end
+
+    it 'handles empty string' do
+      expect(dummy.uj_commaify('')).to eq('')
+    end
+
+    it 'handles already formatted numbers' do
+      expect(dummy.uj_commaify('10,000')).to eq('10,000')
+    end
+
+    it 'leaves non-numeric strings unchanged' do
+      expect(dummy.uj_commaify('Apples')).to eq('Apples')
+      expect(dummy.uj_commaify('Hello World')).to eq('Hello World')
+      expect(dummy.uj_commaify('abc123')).to eq('abc123')
+    end
+
+    it 'leaves mixed alphanumeric strings unchanged' do
+      expect(dummy.uj_commaify('10k')).to eq('10k')
+      expect(dummy.uj_commaify('$10000')).to eq('$10000')
+    end
+  end
+
   # Test Pretty JSON method
   describe '.uj_jsonify' do
     it 'pretty prints simple objects' do
