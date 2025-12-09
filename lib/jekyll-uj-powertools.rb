@@ -7,6 +7,7 @@ module Jekyll
 
   # Load Generators
   require_relative "generators/inject-properties"
+  require_relative "generators/blog-taxonomy"
 
   # Load Hooks
   require_relative "hooks/inject-properties"
