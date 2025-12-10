@@ -142,6 +142,21 @@ module Jekyll
       JSON.pretty_generate(input, indent: indent_string)
     end
 
+    # Pluralize a word based on a count
+    # Usage: {{ count | uj_pluralize: 'singular', 'plural' }}
+    # Example: {{ 5 | uj_pluralize: 'post', 'posts' }} => 'posts'
+    # Example: {{ 1 | uj_pluralize: 'post', 'posts' }} => 'post'
+    def uj_pluralize(count, singular, plural = nil)
+      # Default plural adds 's' to singular if not provided
+      plural ||= "#{singular}s"
+
+      # Convert count to integer for comparison
+      count_int = count.to_i
+
+      # Return singular for 1, plural for everything else (including 0)
+      count_int == 1 ? singular : plural
+    end
+
     # Format a number with commas (e.g., 10000 becomes 10,000)
     def uj_commaify(input)
       return input unless input

@@ -291,6 +291,62 @@ RSpec.describe Jekyll::UJPowertools do
     end
   end
 
+  # Test Pluralize method
+  describe '.uj_pluralize' do
+    it 'returns singular for count of 1' do
+      expect(dummy.uj_pluralize(1, 'post', 'posts')).to eq('post')
+      expect(dummy.uj_pluralize(1, 'category', 'categories')).to eq('category')
+      expect(dummy.uj_pluralize(1, 'person', 'people')).to eq('person')
+    end
+
+    it 'returns plural for count of 0' do
+      expect(dummy.uj_pluralize(0, 'post', 'posts')).to eq('posts')
+      expect(dummy.uj_pluralize(0, 'item', 'items')).to eq('items')
+    end
+
+    it 'returns plural for counts greater than 1' do
+      expect(dummy.uj_pluralize(2, 'post', 'posts')).to eq('posts')
+      expect(dummy.uj_pluralize(5, 'category', 'categories')).to eq('categories')
+      expect(dummy.uj_pluralize(100, 'person', 'people')).to eq('people')
+      expect(dummy.uj_pluralize(1000, 'item', 'items')).to eq('items')
+    end
+
+    it 'returns plural for negative counts' do
+      expect(dummy.uj_pluralize(-1, 'post', 'posts')).to eq('posts')
+      expect(dummy.uj_pluralize(-5, 'item', 'items')).to eq('items')
+    end
+
+    it 'handles string count inputs' do
+      expect(dummy.uj_pluralize('1', 'post', 'posts')).to eq('post')
+      expect(dummy.uj_pluralize('5', 'post', 'posts')).to eq('posts')
+      expect(dummy.uj_pluralize('0', 'post', 'posts')).to eq('posts')
+    end
+
+    it 'auto-generates plural by adding s when plural not provided' do
+      expect(dummy.uj_pluralize(0, 'post')).to eq('posts')
+      expect(dummy.uj_pluralize(1, 'post')).to eq('post')
+      expect(dummy.uj_pluralize(5, 'post')).to eq('posts')
+      expect(dummy.uj_pluralize(2, 'item')).to eq('items')
+    end
+
+    it 'handles irregular plurals when explicitly provided' do
+      expect(dummy.uj_pluralize(1, 'child', 'children')).to eq('child')
+      expect(dummy.uj_pluralize(2, 'child', 'children')).to eq('children')
+      expect(dummy.uj_pluralize(1, 'mouse', 'mice')).to eq('mouse')
+      expect(dummy.uj_pluralize(3, 'mouse', 'mice')).to eq('mice')
+    end
+
+    it 'handles nil count as 0' do
+      expect(dummy.uj_pluralize(nil, 'post', 'posts')).to eq('posts')
+    end
+
+    it 'handles float counts by converting to integer' do
+      expect(dummy.uj_pluralize(1.5, 'post', 'posts')).to eq('post')
+      expect(dummy.uj_pluralize(2.9, 'post', 'posts')).to eq('posts')
+      expect(dummy.uj_pluralize(0.5, 'post', 'posts')).to eq('posts')
+    end
+  end
+
   # Test Pretty JSON method
   describe '.uj_jsonify' do
     it 'pretty prints simple objects' do

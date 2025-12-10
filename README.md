@@ -70,6 +70,28 @@ Convert a string to title case.
 {{ "hello world" | uj_title_case }}
 ```
 
+### `uj_pluralize` Filter
+Return the singular or plural form of a word based on a count.
+
+```liquid
+{{ 1 | uj_pluralize: 'post', 'posts' }}
+<!-- Output: post -->
+
+{{ 5 | uj_pluralize: 'post', 'posts' }}
+<!-- Output: posts -->
+
+{{ 0 | uj_pluralize: 'item', 'items' }}
+<!-- Output: items -->
+
+<!-- Plural is optional - defaults to singular + 's' -->
+{{ 3 | uj_pluralize: 'comment' }}
+<!-- Output: comments -->
+
+<!-- Works with irregular plurals -->
+{{ 2 | uj_pluralize: 'child', 'children' }}
+<!-- Output: children -->
+```
+
 ### `uj_commaify` Filter
 Format numbers with commas for better readability (e.g., 10000 becomes 10,000).
 

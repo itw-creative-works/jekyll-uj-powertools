@@ -7,11 +7,17 @@ module Jekyll
     def initialize(site, base, category_name, category_slug)
       @site = site
       @base = base
-      @dir = "blog/categories/#{category_slug}"
-      @name = 'index.html'
+      @dir = "blog/categories"
+      @name = "#{category_slug}.html"
 
       self.process(@name)
-      self.read_yaml(File.join(base, '_layouts'), 'blueprint/blog/categories/category.html')
+
+      # Initialize data without reading from file
+      self.data = {}
+      self.content = ''
+
+      # Set layout - Jekyll will resolve this through its layout chain
+      self.data['layout'] = 'blueprint/blog/categories/category'
 
       # Set page data
       self.data['category'] = {
@@ -19,10 +25,11 @@ module Jekyll
         'slug' => category_slug
       }
       self.data['title'] = "#{category_name} - Blog Categories"
-      self.data['meta'] ||= {}
-      self.data['meta']['title'] = "#{category_name} - Blog Categories - #{site.config['brand']['name'] || site.config['title']}"
-      self.data['meta']['description'] = "Browse all blog posts in the #{category_name} category."
-      self.data['meta']['breadcrumb'] = category_name
+      self.data['meta'] = {
+        'title' => "#{category_name} - Blog Categories - #{site.config.dig('brand', 'name') || site.config['title'] || ''}",
+        'description' => "Browse all blog posts in the #{category_name} category.",
+        'breadcrumb' => category_name
+      }
     end
   end
 
@@ -30,11 +37,17 @@ module Jekyll
     def initialize(site, base, tag_name, tag_slug)
       @site = site
       @base = base
-      @dir = "blog/tags/#{tag_slug}"
-      @name = 'index.html'
+      @dir = "blog/tags"
+      @name = "#{tag_slug}.html"
 
       self.process(@name)
-      self.read_yaml(File.join(base, '_layouts'), 'blueprint/blog/tags/tag.html')
+
+      # Initialize data without reading from file
+      self.data = {}
+      self.content = ''
+
+      # Set layout - Jekyll will resolve this through its layout chain
+      self.data['layout'] = 'blueprint/blog/tags/tag'
 
       # Set page data
       self.data['tag'] = {
@@ -42,10 +55,11 @@ module Jekyll
         'slug' => tag_slug
       }
       self.data['title'] = "#{tag_name} - Blog Tags"
-      self.data['meta'] ||= {}
-      self.data['meta']['title'] = "#{tag_name} - Blog Tags - #{site.config['brand']['name'] || site.config['title']}"
-      self.data['meta']['description'] = "Browse all blog posts tagged with #{tag_name}."
-      self.data['meta']['breadcrumb'] = tag_name
+      self.data['meta'] = {
+        'title' => "#{tag_name} - Blog Tags - #{site.config.dig('brand', 'name') || site.config['title'] || ''}",
+        'description' => "Browse all blog posts tagged with #{tag_name}.",
+        'breadcrumb' => tag_name
+      }
     end
   end
 
