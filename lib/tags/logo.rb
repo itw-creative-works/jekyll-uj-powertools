@@ -77,23 +77,59 @@ module Jekyll
     def load_logo_from_file(logo_name, type, color)
       # Create cache key
       cache_key = "#{type}/#{color}/#{logo_name}"
-      
+
       # Return cached version if available
       return @@logo_cache[cache_key] if @@logo_cache.key?(cache_key)
-      
+
       # Build file path
       logo_path = File.join(Dir.pwd, 'node_modules', 'ultimate-jekyll-manager', 'assets', 'logos', type, color, "#{logo_name}.svg")
-      
+
       # Try to load the logo
       logo_svg = if File.exist?(logo_path)
                    File.read(logo_path)
                  else
                    DEFAULT_LOGO
                  end
-      
+
+      # Prefix all IDs to prevent conflicts when multiple SVGs are on the same page
+      logo_svg = prefix_svg_ids(logo_svg, logo_name)
+
       # Cache the result
       @@logo_cache[cache_key] = logo_svg
       return logo_svg
+    end
+
+    # Prefix all IDs in an SVG with the logo name to prevent conflicts
+    # when multiple SVGs are inlined on the same page
+    def prefix_svg_ids(svg_content, prefix)
+      # Find all id attributes in the SVG
+      ids = svg_content.scan(/\bid=["']([^"']+)["']/).flatten.uniq
+
+      return svg_content if ids.empty?
+
+      result = svg_content.dup
+
+      ids.each do |id|
+        new_id = "#{prefix}-#{id}"
+
+        # Replace id definitions: id="X" and id='X'
+        result.gsub!(/\bid=(["'])#{Regexp.escape(id)}\1/, "id=\"#{new_id}\"")
+
+        # Replace url() references: url(#X) and url('#X') and url("#X")
+        result.gsub!(/url\(\s*##{Regexp.escape(id)}\s*\)/, "url(##{new_id})")
+        result.gsub!(/url\(\s*["']##{Regexp.escape(id)}["']\s*\)/, "url(##{new_id})")
+
+        # Replace xlink:href references: xlink:href="#X"
+        result.gsub!(/xlink:href=["']##{Regexp.escape(id)}["']/, "xlink:href=\"##{new_id}\"")
+
+        # Replace x:href references (custom namespace, convert to standard href): x:href="#X"
+        result.gsub!(/x:href=["']##{Regexp.escape(id)}["']/, "href=\"##{new_id}\"")
+
+        # Replace href references (modern SVG): href="#X"
+        result.gsub!(/\bhref=["']##{Regexp.escape(id)}["']/, "href=\"##{new_id}\"")
+      end
+
+      result
     end
   end
 end
