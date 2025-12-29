@@ -6,8 +6,10 @@ module Jekyll
   require_relative "filters/main"
 
   # Load Generators
+  require_relative "generators/limit-collections"
   require_relative "generators/inject-properties"
   require_relative "generators/blog-taxonomy"
+  require_relative "generators/dynamic-pages"
 
   # Load Hooks
   require_relative "hooks/inject-properties"

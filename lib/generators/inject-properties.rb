@@ -5,7 +5,7 @@
 module Jekyll
   class InjectProperties < Generator
     safe true
-    priority :low
+    priority :lowest  # Run LAST so all pages from other generators exist before injecting resolved data
 
     def generate(site)
       # Define a global variable accessible in templates

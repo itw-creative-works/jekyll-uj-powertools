@@ -294,6 +294,90 @@ Creates language-specific URLs for multilingual sites.
 {% uj_translation_url target_lang, "/pricing" %}
 ```
 
+## Generators
+
+### Dynamic Pages Generator
+Automatically generate pages from collection data based on frontmatter fields. This is useful for creating category, tag, or any taxonomy pages dynamically without manually creating each page.
+
+#### Configuration
+Add to your `_config.yml`:
+
+```yaml
+generators:
+  collection_categories:
+    # Example 1: Extract category from nested frontmatter field
+    - collection: recipes
+      field: recipe.cuisine       # Dot notation for nested fields
+      layout: recipe-category
+      permalink: /recipes/:slug
+      title: ":name Recipes"
+      description: "Browse our collection of :name recipes."
+
+    # Example 2: Simple frontmatter field
+    - collection: products
+      field: category
+      layout: product-category
+      permalink: /products/:slug
+      title: ":name Products"
+      description: "Shop our :name products."
+
+    # Example 3: Minimal config (uses defaults)
+    - collection: articles
+      field: category
+      layout: article-category
+```
+
+#### Template Variables
+Use these placeholders in `title`, `description`, and `permalink`:
+- `:name` - The formatted category name (e.g., "Asian Cuisine")
+- `:slug` - The URL-safe slug (e.g., "asian-cuisine")
+
+#### Defaults
+- `permalink`: `/:collection/:slug` (e.g., `/recipes/asian`)
+- `title`: `:name`
+- `description`: `Browse our collection of :name.`
+
+#### Generated Page Data
+Each generated page includes the following data accessible in the layout:
+- `page.title` - The formatted title
+- `page.description` - The formatted description
+- `page.category_slug` - URL-safe slug (e.g., "asian-cuisine")
+- `page.category_name` - Human-readable name (e.g., "Asian Cuisine")
+- `page.collection_name` - Source collection name (e.g., "recipes")
+- `page.meta.title` - SEO title with site name appended
+- `page.meta.description` - SEO description
+
+#### Example Layout
+Create a layout file (e.g., `_layouts/recipe-category.html`) to display the category page:
+
+```liquid
+---
+layout: default
+---
+<h1>{{ page.category_name }}</h1>
+<p>{{ page.description }}</p>
+
+{% assign items = site.recipes | where_exp: "item", "item.recipe.cuisine == page.category_name" %}
+{% for item in items %}
+  <article>
+    <h2><a href="{{ item.url }}">{{ item.title }}</a></h2>
+  </article>
+{% endfor %}
+```
+
+## Development Config (`_config.dev.yml`)
+Speed up dev builds by limiting collections. Create `_config.dev.yml` in your Jekyll source:
+
+```yaml
+limit_collections:
+  recipes: 50
+  products: 20
+```
+
+Run with: `bundle exec jekyll serve --config _config.yml,_config.dev.yml`
+
+UJ auto-loads this file in dev mode.
+
 ## Final notes
 These examples show how you can use the features of `jekyll-uj-powertools` in your Jekyll site.
 
