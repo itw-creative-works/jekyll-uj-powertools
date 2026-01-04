@@ -35,6 +35,9 @@ Gem::Specification.new do |spec|
   # Translation and HTML manipulation requires Nokogiri
   spec.add_runtime_dependency 'nokogiri', '>= 1.17'
 
+  # Parallel processing for faster builds
+  spec.add_runtime_dependency 'parallel', '>= 1.20'
+
   # Ruby version
   spec.required_ruby_version = ">= 2.0.0"
 end

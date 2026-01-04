@@ -365,6 +365,38 @@ layout: default
 {% endfor %}
 ```
 
+## Parallel Build
+Speed up Jekyll builds by rendering pages and documents in parallel using multiple CPU threads. This can significantly reduce build times for sites with many pages.
+
+**Enabled by default** - no configuration needed! The plugin automatically uses all available CPU cores.
+
+### Configuration
+Customize parallel build behavior in `_config.yml`:
+
+```yaml
+parallel_build:
+  enabled: true          # Enable/disable parallel builds (default: true)
+  threads: 8             # Number of threads (default: number of CPU cores)
+  min_items: 1           # Minimum items before parallelizing (default: 1)
+```
+
+### Disabling Parallel Build
+If you encounter issues with thread-safety in custom Liquid tags:
+
+```yaml
+# Option 1: Disable entirely
+parallel_build: false
+
+# Option 2: Disable via enabled flag
+parallel_build:
+  enabled: false
+```
+
+### Performance Tips
+- Parallel builds work best with CPU-bound Liquid rendering
+- For maximum speed, combine with `limit_collections` during development
+- Use `--profile` to identify slow templates that benefit most from parallelization
+
 ## Development Config (`_config.dev.yml`)
 Speed up dev builds by limiting collections. Create `_config.dev.yml` in your Jekyll source:
 
