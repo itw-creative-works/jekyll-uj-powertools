@@ -31,6 +31,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rake"
   spec.add_development_dependency "rspec"
   spec.add_development_dependency "simplecov"
+  spec.add_development_dependency "ostruct"
 
   # Translation and HTML manipulation requires Nokogiri
   spec.add_runtime_dependency 'nokogiri', '>= 1.17'
