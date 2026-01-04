@@ -1,9 +1,10 @@
 PATH
   remote: .
   specs:
-    jekyll-uj-powertools (1.7.0)
+    jekyll-uj-powertools (1.7.1)
       jekyll (>= 3.0, < 5.0)
       nokogiri (>= 1.17)
+      parallel (>= 1.20)
 
 GEM
   remote: https://rubygems.org/
@@ -20,7 +21,7 @@ GEM
     eventmachine (1.2.7)
     ffi (1.15.5)
     forwardable-extended (2.6.0)
-    google-protobuf (3.23.3-arm64-darwin)
+    google-protobuf (3.23.3)
     http_parser.rb (0.8.0)
     i18n (1.14.1)
       concurrent-ruby (~> 1.0)
@@ -53,8 +54,11 @@ GEM
       rb-fsevent (~> 0.10, >= 0.10.3)
       rb-inotify (~> 0.9, >= 0.9.10)
     mercenary (0.4.0)
-    nokogiri (1.17.2-arm64-darwin)
+    mini_portile2 (2.8.9)
+    nokogiri (1.17.2)
+      mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
+    parallel (1.27.0)
     pathutil (0.16.2)
       forwardable-extended (~> 2.6)
     public_suffix (5.0.1)
@@ -94,6 +98,7 @@ GEM
 
 PLATFORMS
   arm64-darwin-21
+  arm64-darwin-24
 
 DEPENDENCIES
   bundler
