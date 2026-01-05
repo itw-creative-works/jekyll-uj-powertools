@@ -5,7 +5,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 Gem::Specification.new do |spec|
   # Gem info
   spec.name = "jekyll-uj-powertools"
-  spec.version = "1.7.1"
+  spec.version = "1.7.2"
 
   # Author info
   spec.authors = ["ITW Creative Works"]
