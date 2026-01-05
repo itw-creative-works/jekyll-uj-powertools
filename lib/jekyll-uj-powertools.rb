@@ -1,6 +1,5 @@
 # Libraries
 require "jekyll"
-require "parallel"
 
 module Jekyll
   # Load Filters
