@@ -5,7 +5,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 Gem::Specification.new do |spec|
   # Gem info
   spec.name = "jekyll-uj-powertools"
-  spec.version = "1.7.2"
+  spec.version = "1.7.3"
 
   # Author info
   spec.authors = ["ITW Creative Works"]
@@ -37,7 +37,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'nokogiri', '>= 1.17'
 
   # Parallel processing for faster builds
-  spec.add_runtime_dependency 'parallel', '>= 1.20'
+  # spec.add_runtime_dependency 'parallel', '>= 1.20'
 
   # Ruby version
   spec.required_ruby_version = ">= 2.0.0"
