@@ -115,17 +115,37 @@ Process content with Liquid templating and Markdown conversion, automatically tr
 
 This filter:
 - Transforms markdown images `![alt](url)` to `{% uj_image "url", alt="alt", class="..." %}`
-- Automatically pulls image class from `page.resolved.theme.blog.image.class`
+- Resolves `@post/` prefix to the post's image directory (see below)
+- Automatically pulls image class from `page.resolved.theme.post.image.class`
 - Processes Liquid tags in the content
 - Converts Markdown to HTML (for .md files)
 
 If no class is specified in frontmatter, the `uj_image` tag will be rendered without a class attribute.
 
+#### `@post/` Image Shortcut
+
+Blog posts can reference images in their post directory using the `@post/` prefix instead of writing the full path:
+
+```markdown
+![Alt text](@post/my-image.jpg)
+```
+
+This resolves to `/assets/images/blog/post-{id}/my-image.jpg` where `{id}` comes from the post's `post.id` frontmatter value.
+
+**Resolution rules:**
+| Syntax | Resolves to |
+|--------|-------------|
+| `@post/file.jpg` | `/assets/images/blog/post-{id}/file.jpg` |
+| `/assets/images/...` | Used as-is (absolute path) |
+| `https://...` | Used as-is (external URL) |
+
+If `@post/` is used on a page without a `post.id`, a warning is logged and the path is left unresolved.
+
 #### Frontmatter Configuration Example
 ```yaml
 ---
 theme:
-  blog:
+  post:
     image:
       class: "img-fluid rounded-3 shadow"
 ---

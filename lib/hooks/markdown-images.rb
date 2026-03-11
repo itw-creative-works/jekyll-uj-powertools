@@ -15,10 +15,23 @@ module Jekyll
         end
       end
 
+      # Get post ID for @post/ prefix resolution
+      post_id = doc.data['post'] && doc.data['post']['id'] ? doc.data['post']['id'] : nil
+
       # Transform markdown images by parsing and rendering Liquid template
       doc.content = doc.content.gsub(/!\[([^\]]*)\]\(([^)]+)\)/) do
         alt_text = $1
         image_path = $2
+
+        # Resolve @post/ prefix to full blog image path
+        if image_path.start_with?('@post/')
+          if post_id
+            filename = image_path.sub('@post/', '')
+            image_path = "/assets/images/blog/post-#{post_id}/#{filename}"
+          else
+            Jekyll.logger.warn "markdown-images", "@post/ used but no post.id found in #{doc.relative_path}"
+          end
+        end
 
         # Build the Liquid tag string
         if image_class

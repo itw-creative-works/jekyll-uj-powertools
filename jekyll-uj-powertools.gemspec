@@ -33,6 +33,12 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "simplecov"
   spec.add_development_dependency "ostruct"
 
+  # Ruby 4.0 removed these from default gems; needed by Jekyll 4.3.x
+  spec.add_development_dependency "logger"
+  spec.add_development_dependency "csv"
+  spec.add_development_dependency "base64"
+  spec.add_development_dependency "bigdecimal"
+
   # Translation and HTML manipulation requires Nokogiri
   spec.add_runtime_dependency 'nokogiri', '>= 1.17'
 
