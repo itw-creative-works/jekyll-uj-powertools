@@ -1,6 +1,7 @@
 # Libraries
 require "jekyll"
 require "json"
+require "digest"
 
 # Filters
 module Jekyll
@@ -47,6 +48,12 @@ module Jekyll
     # Return a random number between 0 and the input
     def uj_random(input)
       rand(input)
+    end
+
+    # Return a deterministic number between 0 and max (exclusive) based on input string hash
+    # Usage: {{ "some-string" | uj_hash: 1000 }} => 0-999 (always same for same input)
+    def uj_hash(input, max)
+      Digest::MD5.hexdigest(input.to_s).hex % max.to_i
     end
 
     # Title case
