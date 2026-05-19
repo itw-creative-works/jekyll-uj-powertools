@@ -381,8 +381,8 @@ RSpec.describe Jekyll::InjectProperties do
       expect(Jekyll::InjectProperties.safe).to be true
     end
 
-    it 'has low priority' do
-      expect(Jekyll::InjectProperties.priority).to eq(:low)
+    it 'has lowest priority' do
+      expect(Jekyll::InjectProperties.priority).to eq(:lowest)
     end
   end
 end

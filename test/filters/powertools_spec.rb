@@ -225,14 +225,21 @@ RSpec.describe Jekyll::UJPowertools do
       end
 
       it 'applies only liquify' do
-        result = dummy.uj_content_format('test content')
+        # Input contains Liquid syntax so liquify will run
+        result = dummy.uj_content_format('test {{ content }}')
         expect(result).to eq('liquified content')
+      end
+
+      it 'returns input unchanged when there is no Liquid syntax' do
+        result = dummy.uj_content_format('test content')
+        expect(result).to eq('test content')
       end
     end
 
     context 'when page has no extension' do
       it 'applies only liquify' do
-        result = dummy.uj_content_format('test content')
+        # Input contains Liquid syntax so liquify will run
+        result = dummy.uj_content_format('test {{ content }}')
         expect(result).to eq('liquified content')
       end
     end
@@ -385,11 +392,11 @@ RSpec.describe Jekyll::UJPowertools do
     end
 
     it 'handles empty objects' do
-      expect(dummy.uj_jsonify({})).to eq("{\n}")
+      expect(dummy.uj_jsonify({})).to eq("{}")
     end
 
     it 'handles empty arrays' do
-      expect(dummy.uj_jsonify([])).to eq("[\n\n]")
+      expect(dummy.uj_jsonify([])).to eq("[]")
     end
 
     it 'handles null values' do

@@ -147,6 +147,113 @@ RSpec.describe 'Jekyll Hooks - Markdown Images' do
     end
   end
 
+  describe 'linked images [![alt](src)](href)' do
+    # Kramdown promotes a lone block-level `![](src)` to its own paragraph, which
+    # shreds the outer `[...](href)` wrapper into orphan literal brackets. The hook
+    # must detect the linked-image pattern first and emit explicit <a><img></a> HTML.
+    it 'wraps the rendered image in an <a> tag pointing to the outer URL' do
+      doc = create_doc(
+        content: '[![Caption](https://i.example.com/pic.png)](https://example.com/landing)',
+        data: { 'post' => { 'id' => 1 } },
+      )
+
+      Jekyll::Hooks.trigger(:posts, :pre_render, doc)
+
+      expect(doc.content).to include('<a href="https://example.com/landing"')
+      expect(doc.content).to include('</a>')
+      expect(doc.content).to include('https://i.example.com/pic.png')
+      expect(doc.content).to include('alt="Caption"')
+      # The literal markdown brackets must NOT survive
+      expect(doc.content).not_to include('[!')
+      expect(doc.content).not_to include('](https://example.com/landing)')
+    end
+
+    it 'sets the anchor to display:block so the entire image is clickable' do
+      # Without display:block, an inline <a> has a one-line-tall hit box and clicks
+      # on the (taller) image's overflow miss the link, falling through to the <p>.
+      doc = create_doc(
+        content: '[![Pic](https://i.example.com/p.png)](https://example.com/x)',
+        data: { 'post' => { 'id' => 1 } },
+      )
+
+      Jekyll::Hooks.trigger(:posts, :pre_render, doc)
+
+      expect(doc.content).to match(/<a href="https:\/\/example\.com\/x"\s+style="display:block">/)
+    end
+
+    it 'resolves @post/ inside the linked image' do
+      doc = create_doc(
+        content: '[![Diagram](@post/chart.png)](https://example.com/full-size)',
+        data: { 'post' => { 'id' => 42 } },
+      )
+
+      Jekyll::Hooks.trigger(:posts, :pre_render, doc)
+
+      expect(doc.content).to include('<a href="https://example.com/full-size"')
+      expect(doc.content).to include('/assets/images/blog/post-42/chart.png')
+      expect(doc.content).not_to include('@post/')
+    end
+
+    it 'handles multiple linked images in one document' do
+      doc = create_doc(
+        content: "[![One](https://i.example.com/1.png)](https://example.com/a)\n\n[![Two](https://i.example.com/2.png)](https://example.com/b)",
+        data: { 'post' => { 'id' => 1 } },
+      )
+
+      Jekyll::Hooks.trigger(:posts, :pre_render, doc)
+
+      expect(doc.content).to include('<a href="https://example.com/a"')
+      expect(doc.content).to include('<a href="https://example.com/b"')
+      expect(doc.content).to include('https://i.example.com/1.png')
+      expect(doc.content).to include('https://i.example.com/2.png')
+    end
+
+    it 'still processes bare ![](src) images when both patterns exist' do
+      doc = create_doc(
+        content: "[![Linked](https://i.example.com/linked.png)](https://example.com/page)\n\n![Bare](https://i.example.com/bare.png)",
+        data: { 'post' => { 'id' => 1 } },
+      )
+
+      Jekyll::Hooks.trigger(:posts, :pre_render, doc)
+
+      expect(doc.content).to include('<a href="https://example.com/page"')
+      expect(doc.content).to include('https://i.example.com/linked.png')
+      expect(doc.content).to include('https://i.example.com/bare.png')
+      # The bare image must NOT have been double-wrapped in <a>
+      bare_index = doc.content.index('bare.png')
+      surrounding = doc.content[[bare_index - 200, 0].max...bare_index]
+      expect(surrounding).not_to match(/<a href[^>]*>\s*[^<]*$/)
+    end
+
+    it 'surrounds the linked image with blank lines so kramdown treats it as a block' do
+      doc = create_doc(
+        content: "### Heading\n[![Pic](https://i.example.com/x.png)](https://example.com/y)\nBody text follows.",
+        data: { 'post' => { 'id' => 1 } },
+      )
+
+      Jekyll::Hooks.trigger(:posts, :pre_render, doc)
+
+      # The rendered <a>...</a> block should have newlines around it
+      expect(doc.content).to match(/\n\n<a href="https:\/\/example\.com\/y"/)
+      expect(doc.content).to match(/<\/a>\n\n/)
+    end
+
+    it 'applies image class from theme config to the inner <img>' do
+      doc = create_doc(
+        content: '[![Styled](https://i.example.com/s.png)](https://example.com/landing)',
+        data: {
+          'post' => { 'id' => 1 },
+          'resolved' => { 'theme' => { 'post' => { 'image' => { 'class' => 'img-fluid rounded-3' } } } },
+        },
+      )
+
+      Jekyll::Hooks.trigger(:posts, :pre_render, doc)
+
+      expect(doc.content).to include('<a href="https://example.com/landing"')
+      expect(doc.content).to include('class="img-fluid rounded-3"')
+    end
+  end
+
   describe 'mixed content' do
     it 'handles @post/ images mixed with external and absolute images' do
       doc = create_doc(

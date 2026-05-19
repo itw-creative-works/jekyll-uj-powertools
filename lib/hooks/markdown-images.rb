@@ -18,11 +18,8 @@ module Jekyll
       # Get post ID for @post/ prefix resolution
       post_id = doc.data['post'] && doc.data['post']['id'] ? doc.data['post']['id'] : nil
 
-      # Transform markdown images by parsing and rendering Liquid template
-      doc.content = doc.content.gsub(/!\[([^\]]*)\]\(([^)]+)\)/) do
-        alt_text = $1
-        image_path = $2
-
+      # Shared transformer: convert ![alt](src) → rendered <img> HTML
+      render_image = lambda do |alt_text, image_path|
         # Resolve @post/ prefix to full blog image path
         if image_path.start_with?('@post/')
           if post_id
@@ -33,19 +30,33 @@ module Jekyll
           end
         end
 
-        # Build the Liquid tag string
         if image_class
           liquid_tag = "{% uj_image \"#{image_path}\", alt=\"#{alt_text}\", class=\"#{image_class}\" %}"
         else
           liquid_tag = "{% uj_image \"#{image_path}\", alt=\"#{alt_text}\" %}"
         end
 
-        # Parse and render the Liquid template immediately
         template = Liquid::Template.parse(liquid_tag)
         context = doc.site.site_payload.merge({'page' => doc.to_liquid})
-        result = template.render(Liquid::Context.new(context))
+        template.render(Liquid::Context.new(context))
+      end
 
-        # Return the HTML with blank lines to ensure markdown treats it as raw HTML
+      # First pass: linked images [![alt](src)](href) → <a href><img></a>
+      # Must run BEFORE the bare-image pass so the outer [](href) wrapper is preserved.
+      # Kramdown otherwise promotes the inner ![](src) to a block and discards the wrapping link.
+      # display:block on the anchor — otherwise an inline <a> has a 20px-tall hit
+      # box, and clicks on the (taller) image overflow miss the link entirely.
+      doc.content = doc.content.gsub(/\[!\[([^\]]*)\]\(([^)]+)\)\]\(([^)]+)\)/) do
+        alt_text = $1
+        image_path = $2
+        href = $3
+        img_html = render_image.call(alt_text, image_path)
+        "\n\n<a href=\"#{href}\" style=\"display:block\">#{img_html}</a>\n\n"
+      end
+
+      # Second pass: bare markdown images ![alt](src)
+      doc.content = doc.content.gsub(/!\[([^\]]*)\]\(([^)]+)\)/) do
+        result = render_image.call($1, $2)
         "\n\n#{result}\n\n"
       end
     end

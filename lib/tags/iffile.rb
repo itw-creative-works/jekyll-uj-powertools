@@ -16,11 +16,10 @@ module Jekyll
         # Get the site object
         site = context.registers[:site]
 
-        # Use the helper to resolve input (handles both literals and variables)
-        path = resolve_input(context, @path)
-        
+        path = resolve_path(context)
+
         # Return empty if path couldn't be resolved
-        return "" unless path
+        return "" if path.nil? || path.to_s.empty?
 
         # Ensure path starts with /
         path = "/#{path}" unless path.to_s.start_with?('/')
@@ -38,6 +37,27 @@ module Jekyll
         else
           ""
         end
+      end
+
+      private
+
+      # Resolve the path argument from context.
+      # Quoted strings are literals. Bare tokens are looked up as variables;
+      # if the root segment isn't defined in context, fall back to the literal markup.
+      def resolve_path(context)
+        return nil if @path.nil? || @path.empty?
+
+        # Quoted string literal
+        if @path.match(/^["'](.*)["']$/)
+          return $1
+        end
+
+        root = @path.split('.').first
+        resolved = resolve_variable(context, @path)
+        return resolved unless resolved.nil?
+
+        # Variable resolved to nil — fall back to literal only if root is also nil/undefined
+        context[root].nil? ? @path : nil
       end
     end
   end

@@ -20,29 +20,29 @@ RSpec.describe Jekyll::UJReadtimeTag do
       expect(result).to eq('1')
     end
 
-    it 'calculates 1 minute for exactly 200 words' do
-      context['page'] = { 'content' => 'word ' * 200 }
+    it 'calculates 1 minute for exactly 269 words' do
+      context['page'] = { 'content' => 'word ' * 269 }
       result = render_tag
       expect(result).to eq('1')
     end
 
-    it 'calculates 2 minutes for 201 words' do
-      context['page'] = { 'content' => 'word ' * 201 }
+    it 'calculates 2 minutes for 270 words' do
+      context['page'] = { 'content' => 'word ' * 270 }
       result = render_tag
       expect(result).to eq('2')
     end
 
     it 'calculates correct readtime for large content' do
-      context['page'] = { 'content' => 'word ' * 1000 }
+      context['page'] = { 'content' => 'word ' * 1345 }
       result = render_tag
-      # 1000 / 200 = 5
+      # 1345 / 269 = 5
       expect(result).to eq('5')
     end
 
     it 'rounds up partial minutes' do
-      context['page'] = { 'content' => 'word ' * 250 }
+      context['page'] = { 'content' => 'word ' * 300 }
       result = render_tag
-      # 250 / 200 = 1.25, rounds up to 2
+      # 300 / 269 ≈ 1.12, rounds up to 2
       expect(result).to eq('2')
     end
   end
@@ -133,17 +133,17 @@ RSpec.describe Jekyll::UJReadtimeTag do
 
   describe 'content normalization' do
     it 'normalizes multiple spaces' do
-      context['page'] = { 'content' => 'Word    with     multiple      spaces    ' + ('test ' * 197) }
+      context['page'] = { 'content' => 'Word    with     multiple      spaces    ' + ('test ' * 266) }
       result = render_tag
-      # Should normalize to 201 words total
+      # Should normalize to 270 words total (4 + 266)
       expect(result).to eq('2')
     end
 
     it 'handles mixed whitespace characters' do
-      content = "Word\twith\ttabs\nand\nnewlines\r\nand\rcarriage\rreturns " + ('test ' * 193)
+      content = "Word\twith\ttabs\nand\nnewlines\r\nand\rcarriage\rreturns " + ('test ' * 262)
       context['page'] = { 'content' => content }
       result = render_tag
-      # Should normalize to 201 words
+      # Should normalize to 270 words (8 + 262)
       expect(result).to eq('2')
     end
   end
