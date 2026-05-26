@@ -231,6 +231,7 @@ A custom Liquid tag that renders a Font Awesome icon with the specified style an
 ```liquid
 {% uj_icon "rocket", "fa-lg me-2" %}
 ```
+The rendered `<i>` element includes a `data-icon` attribute set to the resolved icon name (e.g. `<i class="fa fa-lg me-2" data-icon="rocket">...</i>`), making it easy to target specific icons in CSS or JS via `[data-icon="rocket"]`.
 
 ### `uj_logo` Tag
 A custom Liquid tag that renders company logos from the Ultimate Jekyll Manager assets. It supports brandmarks and combomarks in various colors.

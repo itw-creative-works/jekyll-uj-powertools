@@ -110,10 +110,11 @@ module Jekyll
       # end
 
       # Wrap in i tag with CSS classes (always include 'fa' class)
+      data_attr = " data-icon=\"#{icon_name}\"" if icon_name && !icon_name.empty?
       if css_classes && !css_classes.empty?
-        "<i class=\"fa #{css_classes}\">#{processed_svg}</i>"
+        "<i class=\"fa #{css_classes}\"#{data_attr}>#{processed_svg}</i>"
       else
-        "<i class=\"fa\">#{processed_svg}</i>"
+        "<i class=\"fa\"#{data_attr}>#{processed_svg}</i>"
       end
     end
 

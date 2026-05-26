@@ -76,7 +76,7 @@ RSpec.describe Jekyll::UJIconTag do
   describe 'basic icon rendering' do
     it 'renders an icon without classes' do
       result = render_tag('award')
-      expect(result).to include('<i class="fa">')
+      expect(result).to include('<i class="fa" data-icon="award">')
       expect(result).to include('</i>')
       expect(result).to include('<svg')
       expect(result).to include('width="1em"')
@@ -101,19 +101,19 @@ RSpec.describe Jekyll::UJIconTag do
   describe 'CSS classes' do
     it 'renders with single CSS class' do
       result = render_tag('award, fa-md')
-      expect(result).to include('<i class="fa fa-md">')
+      expect(result).to include('<i class="fa fa-md" data-icon="award">')
       expect(result).to include('AWARD_SVG_DATA')
     end
 
     it 'renders with multiple CSS classes' do
       result = render_tag('award, "fa-md me-2"')
-      expect(result).to include('<i class="fa fa-md me-2">')
+      expect(result).to include('<i class="fa fa-md me-2" data-icon="award">')
       expect(result).to include('AWARD_SVG_DATA')
     end
 
     it 'renders with multiple CSS classes including Bootstrap utilities' do
       result = render_tag("award, 'fa-lg text-primary ms-3'")
-      expect(result).to include('<i class="fa fa-lg text-primary ms-3">')
+      expect(result).to include('<i class="fa fa-lg text-primary ms-3" data-icon="award">')
       expect(result).to include('AWARD_SVG_DATA')
     end
   end
@@ -121,17 +121,17 @@ RSpec.describe Jekyll::UJIconTag do
   describe 'edge cases' do
     it 'handles extra spaces in markup' do
       result = render_tag('award ,  "fa-lg me-2"')
-      expect(result).to include('<i class="fa fa-lg me-2">')
+      expect(result).to include('<i class="fa fa-lg me-2" data-icon="award">')
     end
 
     it 'handles no CSS classes gracefully' do
       result = render_tag('award,')
-      expect(result).to match(%r{^<i class="fa"><svg.*AWARD_SVG_DATA.*</svg></i>$})
+      expect(result).to match(%r{^<i class="fa" data-icon="award"><svg.*AWARD_SVG_DATA.*</svg></i>$})
     end
 
     it 'handles empty CSS classes' do
       result = render_tag('award, ')
-      expect(result).to match(%r{^<i class="fa"><svg.*AWARD_SVG_DATA.*</svg></i>$})
+      expect(result).to match(%r{^<i class="fa" data-icon="award"><svg.*AWARD_SVG_DATA.*</svg></i>$})
     end
 
     it 'returns default icon when icon file does not exist' do
@@ -146,14 +146,14 @@ RSpec.describe Jekyll::UJIconTag do
       context['myVariable'] = 'award'
       template = Liquid::Template.parse("{% uj_icon myVariable %}")
       result = template.render(context)
-      expect(result).to match(%r{^<i class="fa"><svg.*AWARD_SVG_DATA.*</svg></i>$})
+      expect(result).to match(%r{^<i class="fa" data-icon="award"><svg.*AWARD_SVG_DATA.*</svg></i>$})
     end
 
     it 'resolves icon name from context variable with CSS classes' do
       context['myVariable'] = 'star'
       template = Liquid::Template.parse("{% uj_icon myVariable, 'fa-2xl text-warning' %}")
       result = template.render(context)
-      expect(result).to include('<i class="fa fa-2xl text-warning">')
+      expect(result).to include('<i class="fa fa-2xl text-warning" data-icon="star">')
       expect(result).to include('STAR_SVG_DATA')
     end
 
@@ -162,14 +162,14 @@ RSpec.describe Jekyll::UJIconTag do
       context['award'] = nil
       template = Liquid::Template.parse("{% uj_icon award %}")
       result = template.render(context)
-      expect(result).to match(%r{^<i class="fa"><svg.*AWARD_SVG_DATA.*</svg></i>$})
+      expect(result).to match(%r{^<i class="fa" data-icon="award"><svg.*AWARD_SVG_DATA.*</svg></i>$})
     end
 
     it 'handles nested variable access' do
       context['page'] = { 'icon' => 'star' }
       template = Liquid::Template.parse("{% uj_icon page.icon, 'fa-lg me-2' %}")
       result = template.render(context)
-      expect(result).to include('<i class="fa fa-lg me-2">')
+      expect(result).to include('<i class="fa fa-lg me-2" data-icon="star">')
       expect(result).to include('STAR_SVG_DATA')
     end
 
@@ -181,7 +181,7 @@ RSpec.describe Jekyll::UJIconTag do
       template = Liquid::Template.parse("{% uj_icon 'download', 'fa-lg' %}")
 
       result = template.render(context)
-      expect(result).to include('<i class="fa fa-lg">')
+      expect(result).to include('<i class="fa fa-lg" data-icon="download">')
       expect(result).to include('DOWNLOAD_ICON')
     end
 
@@ -242,10 +242,36 @@ RSpec.describe Jekyll::UJIconTag do
     end
   end
 
+  describe 'data-icon attribute' do
+    it 'includes the resolved icon name as data-icon' do
+      result = render_tag('award')
+      expect(result).to include('data-icon="award"')
+    end
+
+    it 'uses the resolved variable value, not the variable expression' do
+      context['page'] = { 'icon' => 'star' }
+      template = Liquid::Template.parse("{% uj_icon page.icon %}")
+      result = template.render(context)
+      expect(result).to include('data-icon="star"')
+      expect(result).not_to include('data-icon="page.icon"')
+    end
+
+    it 'uses the literal name when icon falls back to default' do
+      result = render_tag('nonexistent')
+      expect(result).to include('data-icon="nonexistent"')
+    end
+
+    it 'uses the country code (not language code) is the input for flag mapping' do
+      # The data-icon reflects the icon argument the user passed, not the resolved file
+      result = render_tag('en')
+      expect(result).to include('data-icon="en"')
+    end
+  end
+
   describe 'HTML output structure' do
     it 'produces valid HTML structure' do
       result = render_tag('award, "fa-2xl me-3"')
-      expect(result).to match(%r{^<i class="fa fa-2xl me-3"><svg.*</svg></i>$})
+      expect(result).to match(%r{^<i class="fa fa-2xl me-3" data-icon="award"><svg.*</svg></i>$})
     end
 
     it 'escapes output properly' do
@@ -266,7 +292,7 @@ RSpec.describe Jekyll::UJIconTag do
 
     it 'falls back to brands style with CSS classes' do
       result = render_tag('github, "fa-lg me-2"')
-      expect(result).to include('<i class="fa fa-lg me-2">')
+      expect(result).to include('<i class="fa fa-lg me-2" data-icon="github">')
       expect(result).to include('GITHUB_BRAND_ICON')
     end
 
@@ -296,29 +322,29 @@ RSpec.describe Jekyll::UJIconTag do
   describe 'quoted and unquoted arguments' do
     it 'handles unquoted arguments' do
       result = render_tag('award, fa-lg')
-      expect(result).to include('<i class="fa fa-lg">')
+      expect(result).to include('<i class="fa fa-lg" data-icon="award">')
       expect(result).to include('AWARD_SVG_DATA')
     end
 
     it 'handles single-quoted arguments' do
       result = render_tag("'award', 'fa-lg me-2'")
-      expect(result).to include('<i class="fa fa-lg me-2">')
+      expect(result).to include('<i class="fa fa-lg me-2" data-icon="award">')
       expect(result).to include('AWARD_SVG_DATA')
     end
 
     it 'handles double-quoted arguments' do
       result = render_tag('"award", "fa-lg text-primary"')
-      expect(result).to include('<i class="fa fa-lg text-primary">')
+      expect(result).to include('<i class="fa fa-lg text-primary" data-icon="award">')
       expect(result).to include('AWARD_SVG_DATA')
     end
 
     it 'handles mixed quoted and unquoted arguments' do
       result = render_tag("'award', fa-lg")
-      expect(result).to include('<i class="fa fa-lg">')
+      expect(result).to include('<i class="fa fa-lg" data-icon="award">')
       expect(result).to include('AWARD_SVG_DATA')
 
       result2 = render_tag('award, "fa-sm me-1"')
-      expect(result2).to include('<i class="fa fa-sm me-1">')
+      expect(result2).to include('<i class="fa fa-sm me-1" data-icon="award">')
       expect(result2).to include('AWARD_SVG_DATA')
     end
 
@@ -326,7 +352,7 @@ RSpec.describe Jekyll::UJIconTag do
       context['myIcon'] = 'star'
       template = Liquid::Template.parse("{% uj_icon myIcon, 'fa-xl text-warning me-2' %}")
       result = template.render(context)
-      expect(result).to include('<i class="fa fa-xl text-warning me-2">')
+      expect(result).to include('<i class="fa fa-xl text-warning me-2" data-icon="star">')
       expect(result).to include('STAR_SVG_DATA')
     end
 
@@ -334,7 +360,7 @@ RSpec.describe Jekyll::UJIconTag do
       context['action'] = { 'icon' => 'award' }
       template = Liquid::Template.parse("{% uj_icon action.icon, fa-md %}")
       result = template.render(context)
-      expect(result).to include('<i class="fa fa-md">')
+      expect(result).to include('<i class="fa fa-md" data-icon="award">')
       expect(result).to include('AWARD_SVG_DATA')
     end
 
@@ -348,7 +374,7 @@ RSpec.describe Jekyll::UJIconTag do
       allow(File).to receive(:read).with(rocket_path).and_return('<svg>ROCKET_ICON</svg>')
 
       result = template.render(context)
-      expect(result).to include('<i class="fa fa-lg">')
+      expect(result).to include('<i class="fa fa-lg" data-icon="rocket">')
       expect(result).to include('ROCKET_ICON')
     end
 
@@ -371,7 +397,7 @@ RSpec.describe Jekyll::UJIconTag do
       allow(File).to receive(:read).with(rocket_path).and_return('<svg>ROCKET_ICON</svg>')
 
       result = template.render(context)
-      expect(result).to include('<i class="fa fa-md me-2">')
+      expect(result).to include('<i class="fa fa-md me-2" data-icon="rocket">')
       expect(result).to include('ROCKET_ICON')
       # Make sure it doesn't try to use the literal variable name
       expect(result).not_to include('page.my.variable')
@@ -399,19 +425,19 @@ RSpec.describe Jekyll::UJIconTag do
   describe 'flags functionality' do
     it 'renders flag icons using country codes' do
       result = render_tag('us, "fa-lg me-2"')
-      expect(result).to include('<i class="fa fa-lg me-2">')
+      expect(result).to include('<i class="fa fa-lg me-2" data-icon="us">')
       expect(result).to include('US_FLAG_ICON')
     end
 
     it 'renders flag icons using different country codes' do
       result = render_tag('gb')
-      expect(result).to include('<i class="fa">')
+      expect(result).to include('<i class="fa" data-icon="gb">')
       expect(result).to include('GB_FLAG_ICON')
     end
 
     it 'translates language codes to country codes for flags' do
       result = render_tag('en, "fa-md"')
-      expect(result).to include('<i class="fa fa-md">')
+      expect(result).to include('<i class="fa fa-md" data-icon="en">')
       expect(result).to include('US_FLAG_ICON')  # 'en' maps to 'us'
     end
 
