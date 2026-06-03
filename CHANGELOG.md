@@ -9,6 +9,9 @@
 - `Fixed` for any bug fixes.
 - `Security` in case of vulnerabilities.
 
+## v1.7.10
+- `Added` four new language-to-country flag mappings in `uj_icon`: Urdu (pk), Indonesian (id), Bengali (bd), and Tagalog/Filipino (ph).
+
 ## v1.7.9
 - `Added` `uj_icon` tag now emits a `data-icon="<name>"` attribute on the wrapping `<i>` element, using the resolved icon name. Makes icons targetable via `[data-icon="..."]` selectors without colliding with FontAwesome's own CSS.
 

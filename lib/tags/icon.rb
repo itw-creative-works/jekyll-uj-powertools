@@ -32,6 +32,10 @@ module Jekyll
       'he' => 'il',    # Hebrew -> Israel
       'th' => 'th',    # Thai -> Thailand
       'vi' => 'vn',    # Vietnamese -> Vietnam
+      'ur' => 'pk',    # Urdu -> Pakistan
+      'id' => 'id',    # Indonesian -> Indonesia
+      'bn' => 'bd',    # Bengali -> Bangladesh
+      'tl' => 'ph',    # Tagalog/Filipino -> Philippines
       'uk' => 'ua',    # Ukrainian -> Ukraine
       'cs' => 'cz',    # Czech -> Czech Republic
       'hu' => 'hu',    # Hungarian -> Hungary
