@@ -37,7 +37,13 @@ module Jekyll
       
       # Normalize the URL path
       normalized_path = normalize_path(url_path)
-      
+
+      # If the page is excluded from translation, return the un-prefixed URL
+      excludes = translation_config['exclude'] || []
+      if page_excluded?(normalized_path, excludes)
+        return normalized_path.empty? ? '/' : "/#{normalized_path}"
+      end
+
       # Generate the language-specific URL
       generate_language_url(language_code, normalized_path, default_language)
     end
@@ -64,6 +70,14 @@ module Jekyll
       clean_path = clean_path.sub(/^blog\/page\/(\d+)\.html$/, 'blog/page/\1')
       
       clean_path
+    end
+
+    def page_excluded?(normalized_path, excludes)
+      return false if excludes.empty? || normalized_path.empty?
+
+      excludes.any? do |exclude|
+        normalized_path == exclude || normalized_path.start_with?("#{exclude}/")
+      end
     end
 
     def generate_language_url(language_code, normalized_path, default_language)

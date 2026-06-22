@@ -9,6 +9,9 @@
 - `Fixed` for any bug fixes.
 - `Security` in case of vulnerabilities.
 
+## v1.7.11
+- `Fixed` `uj_translation_url` now checks `translation.exclude` — returns the un-prefixed URL for excluded pages (e.g. blog posts) instead of generating dead language-prefixed links like `/es/blog/...` that 404.
+
 ## v1.7.10
 - `Added` four new language-to-country flag mappings in `uj_icon`: Urdu (pk), Indonesian (id), Bengali (bd), and Tagalog/Filipino (ph).
 
