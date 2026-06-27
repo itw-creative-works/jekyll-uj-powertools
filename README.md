@@ -106,6 +106,28 @@ Format numbers with commas for better readability (e.g., 10000 becomes 10,000).
 <!-- Output: 1,234.56 -->
 ```
 
+### `uj_append_param` Filter
+Intelligently append a query parameter to a URL, using `?` or `&` depending on whether the URL already has a query string.
+
+```liquid
+{{ "https://example.com/img.png" | uj_append_param: "cb", "123" }}
+<!-- Output: https://example.com/img.png?cb=123 -->
+
+{{ "https://example.com/img.png?w=200" | uj_append_param: "cb", "123" }}
+<!-- Output: https://example.com/img.png?w=200&cb=123 -->
+```
+
+### `uj_cachebreak` Filter
+Append a cache-busting query parameter (`cb=<timestamp>`) to any URL. Uses the same consistent timestamp as `site.uj.cache_breaker`. Handles URLs with or without existing query strings.
+
+```liquid
+{{ site.brand.images.brandmark | uj_cachebreak }}
+<!-- Output: https://cdn.example.com/logo.svg?cb=1234567890 -->
+
+{{ "/assets/css/main.bundle.css" | uj_cachebreak }}
+<!-- Output: /assets/css/main.bundle.css?cb=1234567890 -->
+```
+
 ### `uj_content_format` Filter
 Process content with Liquid templating and Markdown conversion, automatically transforming markdown and liquid into HTML intelligently based on the file type.
 

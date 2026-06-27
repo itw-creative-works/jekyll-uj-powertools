@@ -149,6 +149,25 @@ module Jekyll
       JSON.pretty_generate(input, indent: indent_string)
     end
 
+    # Append a query parameter to a URL, handling existing query strings
+    # Usage: {{ "https://example.com/img.png" | uj_append_param: "cb", "123" }}
+    #   => "https://example.com/img.png?cb=123"
+    # Usage: {{ "https://example.com/img.png?w=200" | uj_append_param: "cb", "123" }}
+    #   => "https://example.com/img.png?w=200&cb=123"
+    def uj_append_param(input, key, value)
+      return input if input.nil? || input.to_s.strip.empty?
+      url = input.to_s.strip
+      sep = url.include?('?') ? '&' : '?'
+      "#{url}#{sep}#{key}=#{value}"
+    end
+
+    # Append a cache-busting query parameter to a URL
+    # Usage: {{ "https://example.com/img.png" | uj_cachebreak }}
+    #   => "https://example.com/img.png?cb=1234567890"
+    def uj_cachebreak(input)
+      uj_append_param(input, 'cb', UJPowertools.cache_timestamp)
+    end
+
     # Pluralize a word based on a count
     # Usage: {{ count | uj_pluralize: 'singular', 'plural' }}
     # Example: {{ 5 | uj_pluralize: 'post', 'posts' }} => 'posts'

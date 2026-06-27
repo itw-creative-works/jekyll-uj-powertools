@@ -298,6 +298,99 @@ RSpec.describe Jekyll::UJPowertools do
     end
   end
 
+  # Test Append Param method
+  describe '.uj_append_param' do
+    it 'appends a query param to a URL without existing params' do
+      expect(dummy.uj_append_param('https://example.com/img.png', 'cb', '123')).to eq('https://example.com/img.png?cb=123')
+    end
+
+    it 'appends with & when URL already has a query string' do
+      expect(dummy.uj_append_param('https://example.com/img.png?w=200', 'cb', '123')).to eq('https://example.com/img.png?w=200&cb=123')
+    end
+
+    it 'handles URLs with multiple existing params' do
+      expect(dummy.uj_append_param('https://example.com/img.png?w=200&h=100', 'cb', '123')).to eq('https://example.com/img.png?w=200&h=100&cb=123')
+    end
+
+    it 'handles URLs with fragments' do
+      expect(dummy.uj_append_param('https://example.com/page#section', 'cb', '123')).to eq('https://example.com/page#section?cb=123')
+    end
+
+    it 'handles bare paths' do
+      expect(dummy.uj_append_param('/assets/img/logo.svg', 'cb', '456')).to eq('/assets/img/logo.svg?cb=456')
+    end
+
+    it 'handles CDN URLs' do
+      expect(dummy.uj_append_param('https://cdn.itwcreativeworks.com/assets/daily-embers/images/logo/brandmark/black-x.svg', 'cb', '789')).to eq('https://cdn.itwcreativeworks.com/assets/daily-embers/images/logo/brandmark/black-x.svg?cb=789')
+    end
+
+    it 'returns nil input unchanged' do
+      expect(dummy.uj_append_param(nil, 'cb', '123')).to eq(nil)
+    end
+
+    it 'returns empty string unchanged' do
+      expect(dummy.uj_append_param('', 'cb', '123')).to eq('')
+    end
+
+    it 'returns whitespace-only string unchanged' do
+      expect(dummy.uj_append_param('   ', 'cb', '123')).to eq('   ')
+    end
+
+    it 'strips whitespace from URLs' do
+      expect(dummy.uj_append_param('  https://example.com/img.png  ', 'cb', '123')).to eq('https://example.com/img.png?cb=123')
+    end
+
+    it 'handles numeric values' do
+      expect(dummy.uj_append_param('https://example.com/img.png', 'cb', 1234567890)).to eq('https://example.com/img.png?cb=1234567890')
+    end
+
+    it 'handles different param names' do
+      expect(dummy.uj_append_param('https://example.com/img.png', 'version', 'v2')).to eq('https://example.com/img.png?version=v2')
+    end
+  end
+
+  # Test Cachebreak method
+  describe '.uj_cachebreak' do
+    it 'appends cb param with cache_timestamp to a clean URL' do
+      result = dummy.uj_cachebreak('https://example.com/img.png')
+      expect(result).to eq("https://example.com/img.png?cb=#{Jekyll::UJPowertools.cache_timestamp}")
+    end
+
+    it 'appends with & when URL already has a query string' do
+      result = dummy.uj_cachebreak('https://example.com/img.png?w=200')
+      expect(result).to eq("https://example.com/img.png?w=200&cb=#{Jekyll::UJPowertools.cache_timestamp}")
+    end
+
+    it 'uses the same timestamp as cache_timestamp' do
+      result = dummy.uj_cachebreak('https://example.com/img.png')
+      expect(result).to include("cb=#{Jekyll::UJPowertools.cache_timestamp}")
+    end
+
+    it 'returns consistent results across multiple calls' do
+      result1 = dummy.uj_cachebreak('https://example.com/img.png')
+      result2 = dummy.uj_cachebreak('https://example.com/img.png')
+      expect(result1).to eq(result2)
+    end
+
+    it 'returns nil unchanged' do
+      expect(dummy.uj_cachebreak(nil)).to eq(nil)
+    end
+
+    it 'returns empty string unchanged' do
+      expect(dummy.uj_cachebreak('')).to eq('')
+    end
+
+    it 'handles CDN URLs' do
+      result = dummy.uj_cachebreak('https://cdn.itwcreativeworks.com/assets/brand/images/logo.svg')
+      expect(result).to start_with('https://cdn.itwcreativeworks.com/assets/brand/images/logo.svg?cb=')
+    end
+
+    it 'handles bare paths' do
+      result = dummy.uj_cachebreak('/assets/css/main.bundle.css')
+      expect(result).to start_with('/assets/css/main.bundle.css?cb=')
+    end
+  end
+
   # Test Pluralize method
   describe '.uj_pluralize' do
     it 'returns singular for count of 1' do

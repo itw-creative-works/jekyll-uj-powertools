@@ -9,6 +9,10 @@
 - `Fixed` for any bug fixes.
 - `Security` in case of vulnerabilities.
 
+## v1.8.0
+- `Added` `uj_append_param` filter — intelligently appends a query parameter to a URL, using `?` or `&` depending on whether the URL already has a query string.
+- `Added` `uj_cachebreak` filter — convenience wrapper that appends `?cb=<cache_timestamp>` (or `&cb=...` if params exist) to any URL. Replaces manual `?cb={{ site.uj.cache_breaker }}` patterns with a single filter call.
+
 ## v1.7.11
 - `Fixed` `uj_translation_url` now checks `translation.exclude` — returns the un-prefixed URL for excluded pages (e.g. blog posts) instead of generating dead language-prefixed links like `/es/blog/...` that 404.
 
